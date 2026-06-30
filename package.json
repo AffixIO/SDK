@@ -1,0 +1,79 @@
+{
+  "name": "@affix-io/sdk",
+  "version": "2.0.0",
+  "description": "Post-quantum zero-knowledge proof SDK for Node.js. Noir circuits, ML-DSA-65 attestation, Barretenberg UltraHonk proving, verifiable credentials, and privacy-preserving KYC.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "homepage": "https://github.com/AffixIO/SDK",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AffixIO/SDK.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AffixIO/SDK/issues"
+  },
+  "keywords": [
+    "post-quantum-cryptography",
+    "post-quantum",
+    "quantum-safe",
+    "quantum-resistant",
+    "zero-knowledge",
+    "zero-knowledge-proofs",
+    "zkp",
+    "zk-snark",
+    "snark",
+    "noir",
+    "noir-lang",
+    "barretenberg",
+    "ultrahonk",
+    "ml-dsa",
+    "fips-204",
+    "fips-203",
+    "fips-205",
+    "crystals-dilithium",
+    "privacy-preserving",
+    "verifiable-credentials",
+    "attestation",
+    "kyc",
+    "identity",
+    "merkle",
+    "proof",
+    "prove",
+    "verify",
+    "nodejs",
+    "typescript",
+    "affixio"
+  ],
+  "files": [
+    "dist",
+    "certs",
+    ".env.example",
+    "README.md",
+    "LICENSE",
+    "NOTICE",
+    "SECURITY.md",
+    "CONTRIBUTING.md",
+    "AUTHORS",
+    "scripts/postinstall.mjs"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "affix-sdk": "./dist/cli.js",
+    "affix-sdk-web": "./dist/cli.js"
+  },
+  "scripts": {
+    "start": "node dist/cli.js",
+    "postinstall": "node scripts/postinstall.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {}
+}

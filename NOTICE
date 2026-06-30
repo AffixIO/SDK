@@ -1,0 +1,7 @@
+AffixIO SDK
+Copyright 2026 AffixIO
+
+This product includes software developed for zero-knowledge proof generation
+and verification using Noir circuits and the Barretenberg proving system.
+
+Post-quantum attestation uses ML-DSA-65 as specified in NIST FIPS 204.

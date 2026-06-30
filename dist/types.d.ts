@@ -1,0 +1,104 @@
+export type Attestation = {
+    signed_at: string;
+    payload_digest: string;
+    mldsa_signature_b64: string;
+    algorithm: "ML-DSA-65";
+};
+export type AffixCredential = {
+    schema_id: string;
+    issuer_id: string;
+    issuer_pubkey_hash: string;
+    issuer_public_key_hex?: string;
+    credential_id: string;
+    claim_value: string | number;
+    valid_from: number;
+    valid_until: number;
+    fields?: Record<string, unknown>;
+    attestation?: Attestation;
+};
+export type WitnessContext = {
+    secret: string;
+    context_id: string;
+    as_of_timestamp?: number;
+    threshold?: number;
+    region_hash?: string;
+    required_coverage_hash?: string;
+    required_claim_hash?: string;
+    group_hash?: string;
+    min_value?: number;
+    max_value?: number;
+    min_remaining?: number;
+    reference_hash?: string;
+    expected_hash?: string;
+    claim_b?: string | number;
+    claim_c?: string | number;
+    required_a_hash?: string | number;
+    required_b_hash?: string | number;
+    required_c_hash?: string | number;
+    logic_mode?: string | number;
+    decision_hash?: string | number;
+    rules_hash?: string | number;
+    expected_decision_hash?: string | number;
+    expected_rules_hash?: string | number;
+    merkle_leaf?: string;
+    merkle_sibling0?: string;
+    merkle_sibling1?: string;
+    merkle_sibling2?: string;
+    merkle_index?: number;
+    merkle_root?: string;
+};
+export type WitnessPackage = {
+    circuit_id: string;
+    inputs: Record<string, string>;
+};
+export type ProveResult = {
+    proof_id: string;
+    circuit_id: string;
+    proof: string;
+    valid: boolean;
+    verified?: boolean;
+    decision?: "yes" | "no";
+    proof_digest: string;
+    return_value?: string;
+    merkle_root?: string;
+    merkle_leaf_hash?: string;
+    attestation?: Attestation;
+    witness?: WitnessPackage;
+};
+export type VerifyResult = {
+    proof_id: string;
+    valid: boolean;
+    verified: boolean;
+    decision: "yes" | "no";
+    circuit_id: string;
+    proof_digest: string;
+    merkle_root?: string;
+    merkle_leaf_hash?: string;
+    attestation?: Attestation;
+};
+export type SdkConfig = {
+    apiBase: string;
+    apiKey: string;
+    requestAttestation?: boolean;
+    sector?: string;
+    offlineQueuePath?: string;
+    proofStorePath?: string;
+    timeoutMs?: number;
+};
+export type QueuedProveJob = {
+    id: string;
+    circuit_id: string;
+    body: Record<string, unknown>;
+    created_at: string;
+    attempts: number;
+};
+export type StoredProof = {
+    proof_id: string;
+    circuit_id: string;
+    proof: string;
+    proof_digest: string;
+    valid: boolean;
+    created_at: string;
+    synced: boolean;
+    merkle_root?: string;
+};

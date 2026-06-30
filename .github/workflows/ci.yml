@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm install
+      - name: Health check
+        env:
+          AFFIX_API_KEY: ${{ secrets.AFFIX_API_KEY || 'aio_1b51ae929fb4ac1e78e6d5f61ab50262a4302dedbfd9b583' }}
+          AFFIX_API_BASE: https://api.affix-io.com
+        run: node dist/cli.js health
