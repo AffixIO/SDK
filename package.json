@@ -1,6 +1,6 @@
 {
   "name": "@affix-io/sdk",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Post-quantum zero-knowledge proof SDK for Node.js. Noir circuits, ML-DSA-65 attestation, Barretenberg UltraHonk proving, verifiable credentials, and privacy-preserving KYC.",
   "license": "Apache-2.0",
   "type": "module",
@@ -55,8 +55,7 @@
     "NOTICE",
     "SECURITY.md",
     "CONTRIBUTING.md",
-    "AUTHORS",
-    "scripts/postinstall.mjs"
+    "AUTHORS"
   ],
   "exports": {
     ".": {
@@ -69,11 +68,14 @@
     "affix-sdk-web": "./dist/cli.js"
   },
   "scripts": {
-    "start": "node dist/cli.js",
-    "postinstall": "node scripts/postinstall.mjs"
+    "start": "node dist/cli.js"
   },
   "engines": {
     "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   },
   "dependencies": {}
 }
