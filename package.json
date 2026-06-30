@@ -1,6 +1,6 @@
 {
   "name": "@affix-io/sdk",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Post-quantum zero-knowledge proof SDK for Node.js. Noir circuits, ML-DSA-65 attestation, Barretenberg UltraHonk proving, verifiable credentials, and privacy-preserving KYC.",
   "license": "Apache-2.0",
   "type": "module",
