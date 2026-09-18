@@ -1,6 +1,6 @@
 /**
  * Copyable PostgreSQL (pg) + Affix SQL data-check.
- * Install: npm i pg  (not required by @affix-io/sdk itself)
+ * Install: npm i pg  (not required by affixio itself)
  *
  * Env:
  *   AFFIX_SQL_PRIMARY_URL  e.g. postgresql://user:pass@primary:5432/pas
@@ -19,7 +19,7 @@ import {
   createPrimaryReplicaExecutor,
   resolveSqlConnectionConfig,
   SqlLookupError,
-} from "@affix-io/sdk";
+} from "affixio";
 
 const config = resolveSqlConnectionConfig({ dialect: "postgres" });
 const id = process.argv[2] ?? "SQL-1001";

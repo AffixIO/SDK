@@ -1,0 +1,23 @@
+{
+  "name": "affixio-yesno-demo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local yes/no decision demo using the affixio npm SDK",
+  "scripts": {
+    "postinstall": "node scripts/patch-deps.mjs",
+    "prestart": "node scripts/check-node.mjs",
+    "fix": "node scripts/patch-deps.mjs",
+    "reinstall": "rm -rf node_modules package-lock.json && npm install",
+    "start": "node start.mjs",
+    "dev": "node --watch start.mjs"
+  },
+  "engines": {
+    "node": ">=20.19"
+  },
+  "dependencies": {
+    "affixio": "^1.1.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}

@@ -1,0 +1,4 @@
+node_modules/
+.affix/
+.env
+*.log

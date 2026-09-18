@@ -359,3 +359,16 @@ export declare function createAgentTrust(options?: {
     licenceOnly?: boolean;
 }): InstanceType<typeof AgentTrust>;
 export { runDashboard } from "./dashboard/server.js";
+export {
+  AgenticPaymentPolicy,
+  agenticPay,
+  createAgentCheckoutReceipt,
+  createAgenticPayKit,
+  createPaymentMandate,
+  mcpToolGate,
+  paidApiAgentPolicy,
+  shoppingAgentPolicy,
+  spendingPolicy,
+  verifyAgentSpend,
+  x402BeforePay,
+} from "./agentic-pay-kit.js";

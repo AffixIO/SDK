@@ -17,7 +17,7 @@ import {
   createOdbcExecutor,
   resolveSqlConnectionConfig,
   SqlLookupError,
-} from "@affix-io/sdk";
+} from "affixio";
 
 const config = resolveSqlConnectionConfig({ dialect: "odbc" });
 const dsn = config.primaryUrl ?? process.env.ODBC_DSN;

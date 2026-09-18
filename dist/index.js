@@ -62,7 +62,7 @@ export class AffixSDK {
         const operator = loadOperatorConfig(this.config.operatorBaseDir ?? ".affix");
         if (operator.config && config?.proofMode === undefined) {
             this.config.proofMode = operator.config.proofMode ?? this.config.proofMode;
-            this.config.licenceOnly = operator.config.licenceOnly ?? this.config.licenceOnly;
+            this.config.licenceOnly = config?.licenceOnly ?? operator.config.licenceOnly ?? this.config.licenceOnly;
             this.config.connections = operator.config.connections ?? this.config.connections;
             if (operator.config.hsm !== undefined)
                 this.config.hsm = operator.config.hsm;
@@ -1177,6 +1177,19 @@ export {
 };
 
 export { runDashboard } from "./dashboard/server.js";
+export {
+  AgenticPaymentPolicy,
+  agenticPay,
+  createAgentCheckoutReceipt,
+  createAgenticPayKit,
+  createPaymentMandate,
+  mcpToolGate,
+  paidApiAgentPolicy,
+  shoppingAgentPolicy,
+  spendingPolicy,
+  verifyAgentSpend,
+  x402BeforePay,
+} from "./agentic-pay-kit.js";
 
 /**
  * Create a Know Your Agent control plane bound to api.affix-io.com by default.
@@ -1206,4 +1219,3 @@ export function createAgentTrust(options = {}) {
     hubUrl: options.hubUrl,
   });
 }
-

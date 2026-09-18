@@ -20,7 +20,7 @@ import {
   createPrimaryReplicaExecutor,
   resolveSqlConnectionConfig,
   SqlLookupError,
-} from "@affix-io/sdk";
+} from "affixio";
 
 const config = resolveSqlConnectionConfig({ dialect: "mysql" });
 const id = process.argv[2] ?? "SQL-1001";

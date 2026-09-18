@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AffixIO Yes/No Demo</title>
+  <meta name="description" content="Local yes/no decision demo using the affixio SDK simple_yesno circuit.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/demo.css">
+</head>
+<body>
+  <div class="page">
+    <header class="top">
+      <div class="brand">
+        <span class="brand-mark">AffixIO</span>
+        <span class="brand-sub">Yes / No demo</span>
+      </div>
+      <p class="top-note">Licence-bound HMAC proofs via the <code>affixio</code> npm SDK. Usage appears in <a href="https://hub.affix-io.com/" target="_blank" rel="noopener noreferrer">Hub stats</a>.</p>
+    </header>
+
+    <div id="licence-banner" class="licence-banner" hidden></div>
+
+    <main class="layout">
+      <section class="card">
+        <h1>Prove a decision</h1>
+        <p class="lede">
+          Enter a claim and the required value. The SDK returns <strong>yes</strong> when they match exactly, otherwise <strong>no</strong>.
+        </p>
+
+        <form id="prove-form" class="form">
+          <label class="field">
+            <span>Claim</span>
+            <input id="claim" name="claim" type="text" value="approved" autocomplete="off" required>
+          </label>
+          <label class="field">
+            <span>Required</span>
+            <input id="required" name="required" type="text" value="approved" autocomplete="off" required>
+          </label>
+          <div class="actions">
+            <button type="submit" class="btn primary">Generate proof</button>
+            <button type="button" id="swap-btn" class="btn secondary">Mismatch example</button>
+          </div>
+        </form>
+
+        <div id="prove-status" class="status" hidden></div>
+
+        <div id="decision-panel" class="decision-panel" hidden>
+          <div class="decision-row">
+            <span class="label">Decision</span>
+            <span id="decision-badge" class="badge">—</span>
+          </div>
+          <div class="decision-row">
+            <span class="label">Proof digest</span>
+            <code id="proof-digest" class="mono">—</code>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Verify proof</h2>
+        <p class="lede">Paste a proof hex from above, or from another machine using the same HMAC secret.</p>
+
+        <label class="field">
+          <span>Proof hex</span>
+          <textarea id="proof-input" rows="6" placeholder="Paste proof hex here"></textarea>
+        </label>
+
+        <div class="actions">
+          <button type="button" id="verify-btn" class="btn primary">Verify locally</button>
+          <button type="button" id="copy-btn" class="btn secondary" disabled>Copy proof</button>
+        </div>
+
+        <div id="verify-status" class="status" hidden></div>
+
+        <pre id="verify-output" class="output" hidden></pre>
+      </section>
+
+      <section class="card muted">
+        <h2>Setup</h2>
+        <ol class="steps">
+          <li>Copy the <code>demo</code> folder to your machine.</li>
+          <li><code>cp env.example .env</code> and paste your <code>aio_live_...</code> key from Hub.</li>
+          <li>Run <code>npm install</code> then <code>npm start</code>.</li>
+          <li>Open <code>http://127.0.0.1:3847</code>. Each proof counts against your Hub quota.</li>
+        </ol>
+      </section>
+    </main>
+  </div>
+
+  <script src="/js/demo.js" defer></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # SQL connection recipes (pg / mysql / odbc)
 
-Drivers are **not** bundled in `@affix-io/sdk`. Install the client your estate uses, then copy one of these scripts.
+Drivers are **not** bundled in `affixio`. Install the client your estate uses, then copy one of these scripts.
 
 | File | Driver | Notes |
 |------|--------|--------|
@@ -36,7 +36,7 @@ import {
   createPrimaryReplicaExecutor,
   SqlStore,
   resolveSqlConnectionConfig,
-} from "@affix-io/sdk";
+} from "affixio";
 
 const cfg = resolveSqlConnectionConfig({ dialect: "postgres" });
 const executor = createPrimaryReplicaExecutor({
