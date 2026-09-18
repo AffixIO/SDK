@@ -22,7 +22,8 @@
     "affix-sdk": "dist/cli.js"
   },
   "scripts": {
-    "build": "node --input-type=module -e \"await import('./dist/index.js')\"",
+    "build": "tsc -p tsconfig.json && node scripts/copy-static.mjs",
+    "test": "npm run build && node --test test/smoke.test.mjs",
     "setup": "node dist/cli.js setup",
     "menu": "node dist/cli.js menu"
   },
@@ -108,6 +109,8 @@
   },
   "files": [
     "dist",
+    "src",
+    "tsconfig.json",
     "circuits",
     "certs",
     "demo-data",

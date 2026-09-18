@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AffixIO Operator | Know Your Agent</title>
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Self-hosted AffixIO enterprise operator console for licence, proofs, queue, and Know Your Agent.">
+  <link rel="icon" href="/logo.png" type="image/png">
+  <link rel="preload" href="/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/app.css?v=20260821c">
+</head>
+<body>
+  <!-- Credit: @paparichens -->
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="AffixIO Operator home">
+        <img class="brand-logo" src="/logo.png" width="120" height="32" alt="AffixIO logo">
+        <span class="brand-lockup">
+          <span class="brand-name">AffixIO</span>
+          <span class="brand-badge">Operator</span>
+        </span>
+      </a>
+      <div class="header-status" aria-live="polite">
+        <span class="pill" id="online-pill">Checking</span>
+        <span class="pill pill-quiet" id="licence-pill">Licence</span>
+        <button type="button" class="btn btn-secondary btn-compact" id="btn-refresh">Refresh</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="shell">
+    <aside class="rail" aria-label="Sections">
+      <p class="rail-label">Console</p>
+      <nav class="nav">
+        <button type="button" class="nav-btn is-active" data-view="live">
+          <span class="nav-dot" aria-hidden="true"></span>
+          Live overview
+        </button>
+        <button type="button" class="nav-btn" data-view="kya">
+          <span class="nav-dot" aria-hidden="true"></span>
+          Know Your Agent
+        </button>
+        <button type="button" class="nav-btn" data-view="proofs">
+          <span class="nav-dot" aria-hidden="true"></span>
+          Proofs
+        </button>
+        <button type="button" class="nav-btn" data-view="queue">
+          <span class="nav-dot" aria-hidden="true"></span>
+          Sync queue
+        </button>
+        <button type="button" class="nav-btn" data-view="config">
+          <span class="nav-dot" aria-hidden="true"></span>
+          Operator config
+        </button>
+      </nav>
+      <div class="rail-foot">
+        <p class="rail-foot-title">Self-hosted</p>
+        <p id="poll-hint">Polling…</p>
+        <p class="muted">Bound to this host. Keys stay local.</p>
+      </div>
+    </aside>
+
+    <main id="main" class="main">
+      <header class="page-head">
+        <div>
+          <p class="eyebrow" id="top-eyebrow">Operator console</p>
+          <h1 id="top-title">Live overview</h1>
+          <p class="lead" id="page-lead">Licence, proofs, queue depth, and Know Your Agent receipts on this machine.</p>
+        </div>
+      </header>
+
+      <section class="view is-active" id="view-live" data-view-panel="live">
+        <div class="stat-grid" id="stat-grid" aria-live="polite"></div>
+        <div class="grid-2">
+          <article class="card">
+            <div class="card-head">
+              <h2>Recent KYA receipts</h2>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Agent</th><th>Action</th><th>Allowed</th><th>When</th></tr>
+                </thead>
+                <tbody id="live-receipts">
+                  <tr><td colspan="4">No KYA receipts yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+          <article class="card">
+            <div class="card-head">
+              <h2>Recent proofs</h2>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Proof</th><th>Decision</th><th>Mode</th><th>Origin</th></tr>
+                </thead>
+                <tbody id="live-proofs">
+                  <tr><td colspan="4">No stored proofs yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="view" id="view-kya" data-view-panel="kya">
+        <div class="grid-2">
+          <article class="card">
+            <div class="card-head">
+              <h2>Enrol agent</h2>
+            </div>
+            <p class="help">Issues a local HMAC credential bound to your capability list. Runs on this host with your Affix API key.</p>
+            <label for="kya-agent">Agent id</label>
+            <input id="kya-agent" type="text" value="agent://local-ops/1" autocomplete="off">
+            <label for="kya-caps">Capabilities (JSON array)</label>
+            <textarea id="kya-caps" rows="8" spellcheck="false">[
+  { "action": "http.get", "resource": "https://api.acme.com/*" },
+  { "action": "db.read", "resource": "orders" }
+]</textarea>
+            <div class="row">
+              <button type="button" class="btn btn-primary" id="btn-enrol">Enrol</button>
+              <button type="button" class="btn btn-secondary" id="btn-verify">Verify last</button>
+            </div>
+          </article>
+          <article class="card">
+            <div class="card-head">
+              <h2>Authorise action</h2>
+            </div>
+            <p class="help">Checks the last enrolled credential against an action and resource, then writes a proof receipt.</p>
+            <label for="kya-action">Action</label>
+            <input id="kya-action" type="text" value="http.get" autocomplete="off">
+            <label for="kya-resource">Resource</label>
+            <input id="kya-resource" type="text" value="https://api.acme.com/orders/42" autocomplete="off">
+            <label class="check">
+              <input id="kya-attest" type="checkbox">
+              Attest online when licence allows
+            </label>
+            <div class="row">
+              <button type="button" class="btn btn-primary" id="btn-authorise">Authorise</button>
+              <button type="button" class="btn btn-secondary" id="btn-audit">Build audit trail</button>
+            </div>
+          </article>
+        </div>
+        <article class="card">
+          <div class="card-head">
+            <h2>KYA result</h2>
+          </div>
+          <pre id="kya-result" class="result">Enrol an agent to begin.</pre>
+        </article>
+      </section>
+
+      <section class="view" id="view-proofs" data-view-panel="proofs">
+        <article class="card">
+          <div class="card-head">
+            <h2>Stored proofs</h2>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Proof id</th><th>Circuit</th><th>Decision</th><th>Mode</th><th>Origin</th></tr>
+              </thead>
+              <tbody id="proofs-body">
+                <tr><td colspan="5">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="view" id="view-queue" data-view-panel="queue">
+        <article class="card">
+          <div class="card-head">
+            <h2>Offline sync queue</h2>
+            <button type="button" class="btn btn-secondary btn-compact" id="btn-flush">Flush queue</button>
+          </div>
+          <p class="help">Pending proofs waiting for Affix verify. Flush needs a non licence-only host with network access.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Proof id</th><th>Circuit</th><th>Decision</th><th>Enqueued</th></tr>
+              </thead>
+              <tbody id="queue-body">
+                <tr><td colspan="4">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="view" id="view-config" data-view-panel="config">
+        <div class="grid-2">
+          <article class="card">
+            <div class="card-head">
+              <h2>Operator</h2>
+            </div>
+            <dl class="kv" id="config-kv"></dl>
+            <button type="button" class="btn btn-secondary" id="btn-licence">Force licence check</button>
+          </article>
+          <article class="card">
+            <div class="card-head">
+              <h2>Raw snapshot</h2>
+            </div>
+            <pre id="config-raw" class="result">Loading…</pre>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span>AffixIO Operator · self-hosted</span>
+      <span class="muted">api.affix-io.com licence rail</span>
+    </div>
+  </footer>
+
+  <script src="/app.js?v=20260821c"></script>
+</body>
+</html>

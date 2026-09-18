@@ -3,14 +3,12 @@
 import { AffixSDK, LicenceOnlyError } from "./index.js";
 import { runInteractive, runSetupWizard } from "./interactive.js";
 import { loadApiKey } from "./operator-config.js";
-
 function arg(name) {
     const idx = process.argv.indexOf(name);
     if (idx === -1)
         return undefined;
     return process.argv[idx + 1];
 }
-
 const LOCAL_COMMANDS = new Set([
     "help",
     "--help",
@@ -26,15 +24,12 @@ const LOCAL_COMMANDS = new Set([
     "hsm",
     "dashboard",
 ]);
-
 function requiresApiKey(command) {
     return !LOCAL_COMMANDS.has(command);
 }
-
 function haveApiKey() {
     return Boolean(process.env.AFFIX_API_KEY ?? arg("--api-key") ?? loadApiKey(".affix"));
 }
-
 async function buildSdk() {
     const apiKey = process.env.AFFIX_API_KEY ?? arg("--api-key") ?? loadApiKey(".affix") ?? "local_operator";
     return new AffixSDK({
@@ -42,11 +37,10 @@ async function buildSdk() {
         apiBase: process.env.AFFIX_API_BASE ?? "https://api.affix-io.com",
         presentmentBase: process.env.AFFIX_PRESENTMENT_BASE ?? arg("--link-base"),
         autoFlush: false,
-        proofMode: arg("--proof-mode") ?? process.env.AFFIX_PROOF_MODE,
+        proofMode: (arg("--proof-mode") ?? process.env.AFFIX_PROOF_MODE),
         licenceOnly: process.env.AFFIX_LICENCE_ONLY === "0" ? false : undefined,
     });
 }
-
 async function main() {
     const command = process.argv[2] ?? "help";
     if (command === "help" || command === "--help") {
@@ -101,7 +95,7 @@ Dashboard flags: --host 127.0.0.1 --port 8787
         };
         process.on("SIGINT", stop);
         process.on("SIGTERM", stop);
-        await new Promise(() => {});
+        await new Promise(() => { });
         return;
     }
     if (requiresApiKey(command) && !haveApiKey()) {

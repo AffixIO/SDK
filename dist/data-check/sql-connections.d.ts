@@ -4,8 +4,8 @@
  *
  * See examples/sql/ for full scripts.
  */
-import type { SqlDialect, SqlExecutor } from "./types.js";
 import { type SqlExecutorWrapOptions } from "./sql-executor.js";
+import type { SqlDialect, SqlExecutor } from "./types.js";
 export type PgPoolLike = {
     query: (sql: string, params?: unknown[]) => Promise<{
         rows: Array<Record<string, unknown>>;
@@ -23,6 +23,30 @@ export type OdbcConnectionLike = {
 };
 export type ConnectionFactoryOptions = SqlExecutorWrapOptions & {
     dialect?: SqlDialect;
+};
+/**
+ * Config shape for host apps (env + ops). Pattern only; SDK does not open sockets from this alone.
+ */
+export type SqlConnectionConfig = {
+    /** Application name / tenant. */
+    name?: string;
+    dialect: SqlDialect;
+    /** Primary (read-write) connection string or DSN. */
+    primaryUrl?: string;
+    /** Read replica / RO DSN. Prefer for data-check. */
+    replicaUrl?: string;
+    /** Prefer replica for lookups. Default true when replicaUrl is set. */
+    preferReplica?: boolean;
+    /** Fail over to primary on replica infra errors. Default true. */
+    failoverToPrimary?: boolean;
+    /** Force SDK SELECT-only guard + RO role meta. Default true for data-check. */
+    readOnly?: boolean;
+    /** SDK-side query deadline (ms). */
+    timeoutMs?: number;
+    /** Pool size hint for host setup docs. */
+    poolMax?: number;
+    /** Driver connect timeout hint (ms). */
+    connectTimeoutMs?: number;
 };
 /**
  * PostgreSQL (pg Pool | Client).
@@ -104,30 +128,6 @@ export declare function createMysqlExecutor(pool: MysqlPoolLike, options?: Conne
  * ```
  */
 export declare function createOdbcExecutor(connection: OdbcConnectionLike, options?: ConnectionFactoryOptions): SqlExecutor;
-/**
- * Config shape for host apps (env + ops). Pattern only; SDK does not open sockets from this alone.
- */
-export type SqlConnectionConfig = {
-    /** Application name / tenant. */
-    name?: string;
-    dialect: SqlDialect;
-    /** Primary (read-write) connection string or DSN. */
-    primaryUrl?: string;
-    /** Read replica / RO DSN. Prefer for data-check. */
-    replicaUrl?: string;
-    /** Prefer replica for lookups. Default true when replicaUrl is set. */
-    preferReplica?: boolean;
-    /** Fail over to primary on replica infra errors. Default true. */
-    failoverToPrimary?: boolean;
-    /** Force SDK SELECT-only guard + RO role meta. Default true for data-check. */
-    readOnly?: boolean;
-    /** SDK-side query deadline (ms). */
-    timeoutMs?: number;
-    /** Pool size hint for host setup docs. */
-    poolMax?: number;
-    /** Driver connect timeout hint (ms). */
-    connectTimeoutMs?: number;
-};
 export declare function resolveSqlConnectionConfig(partial: Partial<SqlConnectionConfig> & {
     dialect: SqlDialect;
 }): SqlConnectionConfig;

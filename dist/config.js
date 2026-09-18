@@ -1,5 +1,6 @@
+/* Credit: @paparichens */
 import { DEFAULT_AFFIX_API_BASE, normaliseApiBase, normalisePresentmentBase } from "./constants.js";
-import { createDefaultJsonDocumentStore, STORAGE_KEYS, } from "./storage/index.js";
+import { createDefaultJsonDocumentStore, STORAGE_KEYS } from "./storage/index.js";
 const DAY = 24 * 60 * 60 * 1000;
 export { DEFAULT_AFFIX_API_BASE, normaliseApiBase, normalisePresentmentBase, } from "./constants.js";
 export function resolveStorageDrivers(config) {
@@ -27,7 +28,7 @@ export function resolveConfig(partial) {
         apiKey: partial.apiKey,
         requestAttestation: partial.requestAttestation ?? true,
         sector: partial.sector ?? "enterprise",
-        proofMode: partial.proofMode ?? process.env.AFFIX_PROOF_MODE ?? "hmac",
+        proofMode: (partial.proofMode ?? process.env.AFFIX_PROOF_MODE ?? "hmac"),
         licenceOnly,
         proofStorePath: partial.proofStorePath ?? ".affix/proofs.json",
         licenceStatePath: partial.licenceStatePath ?? ".affix/licence.json",

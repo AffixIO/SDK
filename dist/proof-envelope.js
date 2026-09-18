@@ -1,6 +1,5 @@
 /* Credit: @paparichens */
 import { signLocalPayload, verifyLocalPayload } from "./local-signing.js";
-
 export function wrapProofEnvelope(payload, options) {
     const attestation = signLocalPayload(payload, {
         hmacSecret: options.hmacSecret,
@@ -9,7 +8,6 @@ export function wrapProofEnvelope(payload, options) {
     });
     return { payload, attestation };
 }
-
 export function verifyProofEnvelope(envelope, hmacSecret) {
     if (!envelope?.payload || !envelope?.attestation) {
         return false;

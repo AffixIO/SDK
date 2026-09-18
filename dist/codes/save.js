@@ -1,3 +1,4 @@
+/* Credit: @paparichens */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, extname, join } from "node:path";
 import { resolveSidecarPath } from "./spent-store.js";

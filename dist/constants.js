@@ -1,3 +1,4 @@
+/* Credit: @paparichens */
 /** Canonical Affix API host for verify, attest, flush (not for QR/barcode presentment). */
 export const DEFAULT_AFFIX_API_BASE = "https://api.affix-io.com";
 /** Default path segment when building a user-supplied presentment URL. */
@@ -20,7 +21,7 @@ export function normalisePresentmentBase(base) {
  * Build a presentment URL from a customer-supplied base + ZK carrier.
  * Returns undefined when no base is configured (codes stay as raw AFX.ZK1…).
  */
-export function buildPresentmentLink(carrier, presentmentBase, pathPrefix = DEFAULT_PRESENTMENT_PATH) {
+export function buildPresentmentLink(carrier, presentmentBase, pathPrefix) {
     const base = normalisePresentmentBase(presentmentBase);
     if (!base)
         return undefined;

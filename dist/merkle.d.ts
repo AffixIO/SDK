@@ -3,17 +3,6 @@ export type MerkleProofStep = {
     sibling: string;
     side: "left" | "right";
 };
-/** Enterprise batch default (aligns with Affix AFFIX_MERKLE_MAX_LEAVES default). */
-export declare const MAX_MERKLE_LEAVES = 50000;
-export declare function leafHashFromPayload(payload: unknown): string;
-export declare function leafHashFromDigest(digest: string): string;
-export declare function buildMerkleTree(leafHashes: string[]): {
-    root: string;
-    layers: string[][];
-};
-export declare function merkleProofForIndex(layers: string[][], index: number): MerkleProofStep[];
-export declare function verifyMerkleProof(leaf: string, root: string, proof: MerkleProofStep[]): boolean;
-export declare function emptyMerkleRoot(): string;
 export type BatchLeaf = {
     proof_id: string;
     circuit_id: string;
@@ -33,6 +22,17 @@ export type MerkleBatch = {
     algorithm: "sha256-sorted-pairs";
     leaves: BatchLeaf[];
 };
+/** Enterprise batch default (aligns with Affix AFFIX_MERKLE_MAX_LEAVES default). */
+export declare const MAX_MERKLE_LEAVES = 50000;
+export declare function leafHashFromPayload(payload: unknown): string;
+export declare function leafHashFromDigest(digest: string): string;
+export declare function buildMerkleTree(leafHashes: string[]): {
+    root: string;
+    layers: string[][];
+};
+export declare function merkleProofForIndex(layers: string[][], index: number): MerkleProofStep[];
+export declare function verifyMerkleProof(leaf: string, root: string, proof: MerkleProofStep[]): boolean;
+export declare function emptyMerkleRoot(): string;
 /**
  * Build a client-side Merkle batch over local proof digests for bulk hand-off to AffixIO.
  * Caps at maxLeaves (default 50_000). Affix API validates leaves via /v1/merkle/audit/batch.

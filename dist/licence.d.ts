@@ -1,36 +1,36 @@
 import { type AffixDocumentStore } from "./storage/index.js";
 import type { LicenceState, AffixSdkConfig } from "./types.js";
 export declare class LicenceError extends Error {
-    readonly code = "affix_sdk_licence_invalid";
+    code: string;
     constructor(message: string);
 }
 /**
  * Random licence recheck roughly every couple of days.
- * Pings GET /v1/auth/check with the configured API key.
- * Definitive API denials expire the local lease immediately; network errors may use grace.
+ * Pings GET /v1/circuits with the configured API key (auth check only; one light call).
  */
 export declare class LicenceLease {
-    private readonly config;
-    private state;
-    private checkPromise;
-    private hydrated;
-    private readonly docs;
-    private readonly key;
+    config: any;
+    state: any;
+    checkPromise: any;
+    hydrated: boolean;
+    docs: any;
+    key: any;
     constructor(config: AffixSdkConfig, docs: AffixDocumentStore, key?: string);
     hydrate(): Promise<void>;
-    private persist;
+    persist(): Promise<void>;
     getState(): LicenceState;
-    private applyPolicyBody;
-    private needsPulse;
+    refreshKeyHint(): LicenceState;
+    applyPolicyBody(body: any): void;
+    needsPulse(): boolean;
     /**
-     * Instant policy pulse. Use after Hub plan changes or before prove when quota matters.
+     * Instant policy pulse for Hub-driven plan changes.
      */
     pulse(force?: boolean): Promise<boolean>;
     ensureFreshPolicy(): Promise<void>;
     consumeQuota(count?: number): Promise<void>;
-    private scheduleNext;
-    private needsCheck;
-    private withinGrace;
+    scheduleNext(): void;
+    needsCheck(): boolean;
+    withinGrace(): boolean;
     /**
      * Lightweight auth ping. Does not call prove. Safe for periodic checks.
      */

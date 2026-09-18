@@ -1,3 +1,4 @@
+/* Credit: @paparichens */
 import { randomUUID } from "node:crypto";
 import { AffixApiClient } from "./client.js";
 import { resolveConfig, resolveStorageDrivers } from "./config.js";
@@ -9,27 +10,25 @@ import { lightProve, lightVerify, isLightProof } from "./light-prove.js";
 import { localProve, localVerify, makeProofId, proofDigest } from "./local-prove.js";
 import { buildProofMerkleBatch, MAX_MERKLE_LEAVES, normalizeMerkleAuditLeaf, verifyBatchInclusions, } from "./merkle.js";
 import { ensureSecrets, loadOperatorConfig, saveOperatorConfig, saveApiKey, loadApiKey, apiKeyHint, defaultOperatorConfig, } from "./operator-config.js";
-import { HSM_PROVIDERS, defaultHsmProfile, validateHsmProfile, testHsmConnection, summariseHsmProfile, } from "./hsm.js";
+import { defaultHsmProfile, validateHsmProfile, testHsmConnection, summariseHsmProfile, } from "./hsm.js";
 import { OfflineQueue } from "./offline-queue.js";
 import { wrapProofEnvelope, verifyProofEnvelope } from "./proof-envelope.js";
 import { ProofStore } from "./proof-store.js";
 import { CodeUseStore, generateZkCode, generateZkCodeFromProve, readZkCode, } from "./codes/index.js";
 import { buildYesNoWitness, defaultContext, isAffixCircuit, normaliseWitnessPackage, } from "./witness.js";
 import { StatsStore } from "./stats.js";
-
+import { AgentTrust, CapabilityPolicy, DEFAULT_API_BASE as KYA_DEFAULT_API_BASE, DEFAULT_HUB_URL as KYA_DEFAULT_HUB_URL, ENROLLED_CLAIM, identityBinding, issueAgentCredential, KYA_CIRCUIT, verifyAgentCredential, } from "./agent-trust/index.js";
 export class LicenceOnlyError extends Error {
     constructor(message = "licence_only_mode: remote verify, attest, merkle audit, and queue flush are disabled") {
         super(message);
         this.name = "LicenceOnlyError";
     }
 }
-
 function assertRemoteAllowed(config) {
     if (config.licenceOnly !== false) {
         throw new LicenceOnlyError();
     }
 }
-
 /**
  * AffixIO SDK: licence-only local prove by default (HMAC + ML-DSA envelope).
  * Optional UltraHonk. Affix network limited to API-key heartbeat in licence-only mode.
@@ -57,7 +56,7 @@ export class AffixSDK {
     lastAutoFlushAt = null;
     lastAutoFlushError = null;
     lastAutoFlushResult = null;
-    constructor(config) {
+    constructor(config = {}) {
         this.config = resolveConfig(config);
         const operator = loadOperatorConfig(this.config.operatorBaseDir ?? ".affix");
         if (operator.config && config?.proofMode === undefined) {
@@ -219,7 +218,7 @@ export class AffixSDK {
         return result;
     }
     /** Forced licence ping (also used by random schedule). */
-    async checkLicence(force = true) {
+    async checkLicence(force) {
         return this.licence.check(force);
     }
     /** Instant policy pulse after Hub plan or quota changes. */
@@ -434,7 +433,7 @@ export class AffixSDK {
             circuit_id: circuitId,
             proof: proved.proof,
             valid: proved.valid,
-            decision: proved.valid ? "yes" : "no",
+            decision: (proved.valid ? "yes" : "no"),
             proof_digest: digest,
             return_value: proved.returnValue,
             source: "local",
@@ -497,7 +496,7 @@ export class AffixSDK {
     /**
      * Verify a proof locally (HMAC or UltraHonk) with optional ML-DSA envelope check.
      */
-    async verifyLocal(circuitId, proofHex, options = {}) {
+    async verifyLocal(circuitId, proofHex, options) {
         if (!isAffixCircuit(circuitId)) {
             throw new Error(`unsupported_circuit:${circuitId}`);
         }
@@ -580,7 +579,7 @@ export class AffixSDK {
      * Verify via AffixIO API (same contract as @affix-io/sdk verify).
      * Online only. On failure with queueOnFailure, enqueues proof for later flush.
      */
-    async verify(circuitId, proof, requestAttestation = true, opts) {
+    async verify(circuitId, proof, requestAttestation, opts) {
         assertRemoteAllowed(this.config);
         await this.licence.assertLicensed();
         if (!isAffixCircuit(circuitId)) {
@@ -1153,69 +1152,33 @@ export { loadOperatorConfig, saveOperatorConfig, ensureSecrets, defaultOperatorC
 export { HttpDataStore, createHttpDataStore, testHttpProfile } from "./http-data-store.js";
 export { HSM_PROVIDERS, defaultHsmProfile, validateHsmProfile, testHsmConnection, summariseHsmProfile, } from "./hsm.js";
 export { withFileLock } from "./file-lock.js";
-import {
-  AgentTrust,
-  CapabilityPolicy,
-  DEFAULT_API_BASE as KYA_DEFAULT_API_BASE,
-  DEFAULT_HUB_URL as KYA_DEFAULT_HUB_URL,
-  ENROLLED_CLAIM,
-  identityBinding,
-  issueAgentCredential,
-  KYA_CIRCUIT,
-  verifyAgentCredential,
-} from "./agent-trust/index.js";
-export {
-  AgentTrust,
-  CapabilityPolicy,
-  KYA_DEFAULT_API_BASE,
-  KYA_DEFAULT_HUB_URL,
-  ENROLLED_CLAIM,
-  identityBinding,
-  issueAgentCredential,
-  KYA_CIRCUIT,
-  verifyAgentCredential,
-};
-
+export { AgentTrust, CapabilityPolicy, KYA_DEFAULT_API_BASE, KYA_DEFAULT_HUB_URL, ENROLLED_CLAIM, identityBinding, issueAgentCredential, KYA_CIRCUIT, verifyAgentCredential, };
 export { runDashboard } from "./dashboard/server.js";
-export {
-  AgenticPaymentPolicy,
-  agenticPay,
-  createAgentCheckoutReceipt,
-  createAgenticPayKit,
-  createPaymentMandate,
-  mcpToolGate,
-  paidApiAgentPolicy,
-  shoppingAgentPolicy,
-  spendingPolicy,
-  verifyAgentSpend,
-  x402BeforePay,
-} from "./agentic-pay-kit.js";
-
+export { AgenticPaymentPolicy, agenticPay, createAgentCheckoutReceipt, createAgenticPayKit, createPaymentMandate, mcpToolGate, paidApiAgentPolicy, shoppingAgentPolicy, spendingPolicy, verifyAgentSpend, x402BeforePay, } from "./agentic-pay-kit.js";
 /**
  * Create a Know Your Agent control plane bound to api.affix-io.com by default.
  * Credit: @paparichens
  */
 export function createAgentTrust(options = {}) {
-  if (!options.apiKey && !options.sdk) {
-    throw new Error("createAgentTrust requires apiKey or sdk");
-  }
-  const apiBase = options.apiBase ?? process.env.AFFIX_API_BASE ?? "https://api.affix-io.com";
-  const sdk =
-    options.sdk ??
-    new AffixSDK({
-      apiKey: options.apiKey,
-      apiBase,
-      proofMode: "hmac",
-      licenceOnly: options.licenceOnly ?? true,
-      autoFlush: false,
-      queueUnsyncedProofs: false,
-      operatorBaseDir: options.storageDir ?? options.operatorBaseDir ?? ".affix-kya",
+    if (!options.apiKey && !options.sdk) {
+        throw new Error("createAgentTrust requires apiKey or sdk");
+    }
+    const apiBase = options.apiBase ?? process.env.AFFIX_API_BASE ?? "https://api.affix-io.com";
+    const sdk = options.sdk ??
+        new AffixSDK({
+            apiKey: options.apiKey,
+            apiBase,
+            proofMode: "hmac",
+            licenceOnly: options.licenceOnly ?? true,
+            autoFlush: false,
+            queueUnsyncedProofs: false,
+            operatorBaseDir: options.storageDir ?? options.operatorBaseDir ?? ".affix-kya",
+        });
+    return new AgentTrust({
+        sdk,
+        ownsSdk: !options.sdk,
+        apiKey: options.apiKey ?? null,
+        apiBase,
+        hubUrl: options.hubUrl,
     });
-  return new AgentTrust({
-    sdk,
-    ownsSdk: !options.sdk,
-    apiKey: options.apiKey ?? null,
-    apiBase,
-    hubUrl: options.hubUrl,
-  });
 }

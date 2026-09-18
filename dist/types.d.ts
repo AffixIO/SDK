@@ -1,3 +1,4 @@
+import type { AffixDocumentStore, AffixStorageConfig } from "./storage/types.js";
 export type Attestation = {
     signed_at: string;
     payload_digest: string;
@@ -78,8 +79,6 @@ export type VerifyResult = {
     merkle_leaf_hash?: string;
     attestation?: Attestation;
 };
-import type { AffixDocumentStore, AffixStorageConfig } from "./storage/types.js";
-
 export type HttpDataProfile = {
     name?: string;
     baseUrl: string;
@@ -92,24 +91,7 @@ export type HttpDataProfile = {
     recordsPath?: string;
     sampleId?: string;
 };
-
-export type HsmProvider =
-    | "pkcs11"
-    | "softhsm"
-    | "aws_cloudhsm"
-    | "aws_kms"
-    | "azure_key_vault"
-    | "azure_managed_hsm"
-    | "gcp_kms"
-    | "google_cloud_hsm"
-    | "thales"
-    | "utimaco"
-    | "ncipher"
-    | "yubihsm"
-    | "fortanix"
-    | "generic_http"
-    | "custom";
-
+export type HsmProvider = "pkcs11" | "softhsm" | "aws_cloudhsm" | "aws_kms" | "azure_key_vault" | "azure_managed_hsm" | "gcp_kms" | "google_cloud_hsm" | "thales" | "utimaco" | "ncipher" | "yubihsm" | "fortanix" | "generic_http" | "custom";
 export type HsmProfile = {
     enabled?: boolean;
     provider: HsmProvider;
@@ -135,7 +117,6 @@ export type HsmProfile = {
     prefer_for_signing?: boolean;
     meta?: Record<string, string>;
 };
-
 export type AffixSdkConfig = {
     apiBase: string;
     apiKey: string;
@@ -151,6 +132,7 @@ export type AffixSdkConfig = {
     spendDir?: string;
     statsPath?: string;
     hmacSecret?: string;
+    signingSeedB64?: string;
     signingKeys?: {
         algorithm: string;
         public_key_b64: string;
@@ -284,3 +266,4 @@ export type LicenceState = {
     quota?: ProofQuotaState | null;
     policy_revision?: number | null;
 };
+export {};

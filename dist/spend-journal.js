@@ -1,15 +1,13 @@
 /* Credit: @paparichens */
 import { appendFileSync, chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 import { ml_dsa65 } from "@noble/post-quantum/ml-dsa";
 import { withFileLock } from "./file-lock.js";
 import { canonicalLocalPayload } from "./local-signing.js";
-
 const HEAD_NAME = "spend-head.json";
 const JOURNAL_NAME = "spend-journal.jsonl";
 const LOCK_NAME = "spend-journal.lock";
-
 function eventCanonical(event) {
     return canonicalLocalPayload({
         seq: event.seq,
@@ -21,11 +19,9 @@ function eventCanonical(event) {
         max_uses: event.max_uses,
     });
 }
-
 function hashEvent(event) {
     return createHash("sha256").update(eventCanonical(event), "utf8").digest("hex");
 }
-
 function loadKeys(keysPath) {
     const raw = JSON.parse(readFileSync(keysPath, "utf8"));
     return {
@@ -34,7 +30,6 @@ function loadKeys(keysPath) {
         keyId: raw.key_id,
     };
 }
-
 export class SpendJournal {
     baseDir;
     keysPath;

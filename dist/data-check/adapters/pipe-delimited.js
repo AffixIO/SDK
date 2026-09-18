@@ -1,3 +1,4 @@
+/* Credit: @paparichens */
 import { readFileSync, existsSync } from "node:fs";
 import { buildCheckResult } from "../map-check.js";
 /**
@@ -10,7 +11,7 @@ export class PipeDelimitedStore {
     style = "legacy";
     rows;
     idColumn;
-    constructor(rows, idColumn = "id") {
+    constructor(rows, idColumn) {
         this.rows = rows;
         this.idColumn = idColumn;
     }

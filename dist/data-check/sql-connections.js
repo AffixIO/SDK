@@ -1,3 +1,4 @@
+/* Credit: @paparichens */
 /**
  * Copyable wire-ups for common Node SQL drivers.
  * Drivers are not package dependencies: pass your pool/connection in.
@@ -35,7 +36,7 @@ import { classifySqlError } from "./sql-errors.js";
  * });
  * ```
  */
-export function createPgExecutor(pool, options = {}) {
+export function createPgExecutor(pool, options) {
     const dialect = options.dialect ?? "postgres";
     const inner = {
         async query(sql, params) {
@@ -76,7 +77,7 @@ export function createPgExecutor(pool, options = {}) {
  * });
  * ```
  */
-export function createMysqlExecutor(pool, options = {}) {
+export function createMysqlExecutor(pool, options) {
     const dialect = options.dialect ?? "mysql";
     const inner = {
         async query(sql, params) {
@@ -118,7 +119,7 @@ export function createMysqlExecutor(pool, options = {}) {
  * });
  * ```
  */
-export function createOdbcExecutor(connection, options = {}) {
+export function createOdbcExecutor(connection, options) {
     const dialect = options.dialect ?? "odbc";
     const inner = {
         async query(sql, params) {

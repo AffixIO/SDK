@@ -1,4 +1,4 @@
-import type { DataCheckQuery, DataCheckResult, DataCheckSource } from "../types.js";
+import type { DataCheckQuery, DataCheckResult } from "../types.js";
 /**
  * Modern key-value document map (Redis-like / JSON object):
  * {
@@ -7,11 +7,11 @@ import type { DataCheckQuery, DataCheckResult, DataCheckSource } from "../types.
  * }
  * Bare string value becomes { value: "..." }.
  */
-export declare class KeyValueStore implements DataCheckSource {
-    readonly name = "key_value";
-    readonly style: "modern";
-    private map;
+export declare class KeyValueStore {
+    name: string;
+    style: "modern";
+    map: any;
     constructor(map: Record<string, unknown>);
-    static fromFile(path: string): KeyValueStore;
+    static fromFile(path: any): KeyValueStore;
     lookup(query: DataCheckQuery): Promise<DataCheckResult | null>;
 }

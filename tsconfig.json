@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rootDir": "src",
+    "outDir": "dist",
+    "declaration": true,
+    "declarationMap": false,
+    "sourceMap": false,
+    "strict": false,
+    "noImplicitAny": false,
+    "useUnknownInCatchVariables": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "verbatimModuleSyntax": false,
+    "types": ["node"],
+    "newLine": "lf"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "src/dashboard/public"]
+}

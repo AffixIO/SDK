@@ -1,76 +1,47 @@
-import { AffixApiClient } from "./client.js";
-import { type DataCheckQuery, type DataCheckResult, type DataCheckSource, type ProveFromCheckInput } from "./data-check/index.js";
 import { LicenceError } from "./licence.js";
-import { type MerkleBatch } from "./merkle.js";
-import { CodeUseStore, type GenerateCodeFromProveInput, type GenerateCodeInput, type GeneratedCode, type ReadCodeInput, type ReadCodeResult } from "./codes/index.js";
+import { AgentTrust, CapabilityPolicy, DEFAULT_API_BASE as KYA_DEFAULT_API_BASE, DEFAULT_HUB_URL as KYA_DEFAULT_HUB_URL, ENROLLED_CLAIM, identityBinding, issueAgentCredential, KYA_CIRCUIT, verifyAgentCredential } from "./agent-trust/index.js";
+import type { DataCheckQuery, DataCheckResult, DataCheckSource, ProveFromCheckInput } from "./data-check/index.js";
+import type { MerkleBatch } from "./merkle.js";
+import type { GenerateCodeFromProveInput, GenerateCodeInput, GeneratedCode, ReadCodeInput, ReadCodeResult } from "./codes/index.js";
 import type { AffixCredential, AffixSdkConfig, HsmProfile, ProveResult, SyncFlushResult, VerifyResult, WitnessContext, WitnessPackage } from "./types.js";
 import type { HsmProbeResult, HsmSummary } from "./hsm.js";
 import type { AffixStats } from "./stats.js";
 import type { SpendHead, SpendIntegrity } from "./spend-journal.js";
 import type { OperatorConfig, OperatorPaths } from "./operator-config.js";
 import type { ProofEnvelope } from "./proof-envelope.js";
-export type ProveInput = {
-    circuitId?: string;
-    credential?: AffixCredential;
-    context?: Partial<WitnessContext>;
-    witness?: WitnessPackage;
-    fields?: Record<string, string | number | boolean>;
-    /** Override the configured proof mode for this call. */
-    proofMode?: "hmac" | "ultrahonk";
-    /** Force a decision for HMAC proofs. Ignored by UltraHonk (circuit decides). */
-    decision?: "yes" | "no" | boolean;
-    /**
-     * auto: use network for licence when possible, else offline local prove.
-     * offline: force offline local prove + queue (no Affix RTT).
-     * online: require live licence; still local ZK prove.
-     */
-    mode?: "auto" | "offline" | "online";
-    /** When true (default from config), enqueue for Affix verify/merkle audit later. */
-    queueForSync?: boolean;
-    /** One host request → one proof. Auto-generated if omitted. */
-    request_id?: string;
-    origin?: "manual" | "data_check" | string;
-    record_id?: string;
-    meta?: Record<string, string>;
-};
-/** Prove result bound to an exact data-check field map (immutable echo). */
-export type ProveFromCheckResult = ProveResult & {
-    /** Exact field strings from the store check (must match proof decision mapping). */
-    fields: DataCheckResult["fields"];
-    check: DataCheckResult;
-    /** true when decision === "yes" ⇔ check.pass ⇔ claim === required */
-    field_aligned: boolean;
-};
-/** Data-check prove + Affix verify (same contract as proveAndVerify). */
-export type ProveFromCheckVerifyResult = {
-    prove: ProveFromCheckResult;
-    verify: VerifyResult;
-};
+export declare class LicenceOnlyError extends Error {
+    constructor(message?: string);
+}
 /**
- * AffixIO SDK: local prove for bundled yesno circuits; AffixIO verifies and attests remotely.
- * Offline local proofs + Merkle batch for bulk sync; licence heartbeat against Affix API key.
- * By default, pending proofs auto-flush to Affix every 5 seconds when the queue is non-empty.
+ * AffixIO SDK: licence-only local prove by default (HMAC + ML-DSA envelope).
+ * Optional UltraHonk. Affix network limited to API-key heartbeat in licence-only mode.
  */
 export declare class AffixSDK {
-    readonly client: AffixApiClient;
-    /** Affix API base URL for verify/attest (default https://api.affix-io.com). */
-    readonly apiBase: string;
+    client: any;
+    /** Affix API base URL (licence heartbeat only in licence-only mode). */
+    apiBase: any;
     /** Optional customer presentment base for QR/barcode links. Unset = raw carrier only. */
-    readonly presentmentBase?: string;
-    private readonly store;
-    private readonly queue;
-    private readonly licence;
-    private readonly config;
-    readonly codeUses: CodeUseStore;
-    private autoFlushTimer;
-    private autoFlushIntervalCurrentMs;
+    presentmentBase: any;
+    store: any;
+    queue: any;
+    licence: any;
+    config: any;
+    codeUses: any;
+    stats: any;
+    hmacSecret: any;
+    signingKeys: any;
+    internalStore: any;
+    externalStore: any;
+    autoFlushTimer: any;
+    autoFlushIntervalCurrentMs: number;
     /** Serialises manual + auto flush so batches never overlap. */
-    private flushChain;
-    private lastAutoFlushAt;
-    private lastAutoFlushError;
-    private lastAutoFlushResult;
-    constructor(config: Partial<AffixSdkConfig> & {
-        apiKey: string;
+    flushChain: Promise<any>;
+    lastAutoFlushAt: any;
+    lastAutoFlushError: any;
+    lastAutoFlushResult: any;
+    constructor(config?: Partial<AffixSdkConfig> & {
+        apiKey?: string;
+        signingSeedB64?: string;
     });
     /** Whether the 5s (configurable) auto-flush timer is running. */
     isAutoFlushActive(): boolean;
@@ -91,12 +62,69 @@ export declare class AffixSDK {
     stopAutoFlush(): void;
     /** Stop timers; call when tearing down a long-lived host process. */
     dispose(): void;
-    private autoFlushTick;
-    private runExclusiveFlush;
+    autoFlushTick(): Promise<void>;
+    runExclusiveFlush<T>(fn: () => T | Promise<T>): Promise<T>;
+    /**
+     * Persist Affix API key under `.affix/secrets/api.key` (mode 0600) and apply it live.
+     * Never written into config.json.
+     */
+    setApiKey(apiKey: string): {
+        path: string;
+        key_hint: string;
+    };
+    apiKeyStatus(): {
+        configured: boolean;
+        stored: boolean;
+        key_hint: string | null;
+    };
+    hsmStatus(): HsmSummary;
+    /**
+     * Persist HSM/KMS connection profile (no PINs or cloud secrets in config).
+     * Credentials stay in environment variables named by the profile.
+     */
+    setHsmProfile(profile: HsmProfile): Promise<HsmSummary>;
+    clearHsmProfile(): Promise<{
+        configured: false;
+    }>;
+    testHsm(): Promise<HsmProbeResult>;
     /** Forced licence ping (also used by random schedule). */
     checkLicence(force?: boolean): Promise<boolean>;
+    /** Instant policy pulse after Hub plan or quota changes. */
+    pulseLicence(force?: boolean): Promise<any>;
     licenceState(): import("./types.js").LicenceState;
     isOnline(): Promise<boolean>;
+    statsSnapshot(): Promise<AffixStats>;
+    spendStatus(): {
+        integrity: SpendIntegrity;
+        head: SpendHead;
+        journal_path: string;
+    };
+    verifySpendJournal(): SpendIntegrity;
+    exportLocalPublicKey(): {
+        algorithm: "ML-DSA-65";
+        key_id: string;
+        public_key_b64: string;
+    };
+    /**
+     * Operator configuration and paths. Secret material is never returned,
+     * only presence flags, so this is safe to log or display.
+     */
+    operatorConfig(): {
+        config: OperatorConfig;
+        paths: OperatorPaths;
+        secrets: {
+            hmac_secret_present: boolean;
+            api_key_present: boolean;
+            signing_key_id: string | null;
+        };
+    };
+    saveOperatorConfig(config: OperatorConfig): Promise<void>;
+    testConnections(): Promise<{
+        licence: unknown;
+        internal: unknown;
+        external: unknown;
+        hsm: HsmProbeResult | null;
+    }>;
     listStoredProofs(): Promise<import("./proof-store.js").StoredProof[]>;
     listPendingSync(): Promise<import("./offline-queue.js").QueuedSyncJob[]>;
     listOfflineQueue(): Promise<import("./offline-queue.js").QueuedSyncJob[]>;
@@ -116,64 +144,14 @@ export declare class AffixSDK {
         meta?: Record<string, string>;
     }): Promise<void>;
     buildWitness(circuitId: string, credential: AffixCredential, context?: Partial<WitnessContext>): WitnessPackage;
-    private resolveWitness;
+    resolveWitness(input: any, circuitId: any): WitnessPackage;
     /**
-     * Persist the Affix API key under `.affix/secrets/api.key` (mode 0600).
-     * The key is never written into config.json.
+     * Generate a ZK proof locally (never Affix prove).
+     * Works offline (mode offline/auto when network down) and online.
      */
-    setApiKey(apiKey: string): {
-        path: string;
-        key_hint: string;
-    };
-    apiKeyStatus(): {
-        configured: boolean;
-        stored: boolean;
-        key_hint: string | null;
-    };
-    /** Current HSM profile summary (no secret material). */
-    hsmStatus(): HsmSummary;
-    /** Persist a hardware or cloud HSM profile. Credentials stay in environment variables. */
-    setHsmProfile(profile: HsmProfile): Promise<HsmSummary>;
-    clearHsmProfile(): Promise<{
-        configured: false;
-    }>;
-    testHsm(): Promise<HsmProbeResult>;
-    /** Local operational counters. */
-    statsSnapshot(): Promise<AffixStats>;
-    /** Tamper-evident spend journal status. */
-    spendStatus(): {
-        integrity: SpendIntegrity;
-        head: SpendHead;
-        journal_path: string;
-    };
-    verifySpendJournal(): SpendIntegrity;
-    /** Deployment-owned ML-DSA-65 public key used to sign every proof. */
-    exportLocalPublicKey(): {
-        algorithm: "ML-DSA-65";
-        key_id: string;
-        public_key_b64: string;
-    };
-    /** Operator configuration and paths. Secret values are replaced by presence flags. */
-    operatorConfig(): {
-        config: OperatorConfig;
-        paths: OperatorPaths;
-        secrets: {
-            hmac_secret_present: boolean;
-            api_key_present: boolean;
-            signing_key_id: string | null;
-        };
-    };
-    saveOperatorConfig(config: OperatorConfig): Promise<void>;
-    /** Probe licence, internal/external data APIs, and the HSM when configured. */
-    testConnections(): Promise<{
-        licence: unknown;
-        internal: unknown;
-        external: unknown;
-        hsm: HsmProbeResult | null;
-    }>;
+    prove(input: ProveInput): Promise<ProveResult>;
     /**
-     * Verify a proof locally. Handles HMAC (`affix-light-v1`) and UltraHonk,
-     * with an optional ML-DSA-65 envelope check.
+     * Verify a proof locally (HMAC or UltraHonk) with optional ML-DSA envelope check.
      */
     verifyLocal(circuitId: string, proofHex: string, options?: {
         proofId?: string;
@@ -190,11 +168,6 @@ export declare class AffixSDK {
         envelope_ok?: boolean;
         reason?: string;
     }>;
-    /**
-     * Generate a ZK proof locally (never Affix prove).
-     * Works offline (mode offline/auto when network down) and online.
-     */
-    prove(input: ProveInput): Promise<ProveResult>;
     /**
      * Build a digests Merkle batch (≤ 50_000) for client packing + Affix leaf validation.
      * Pass `items` to override the offline queue / stored proofs source.
@@ -224,7 +197,7 @@ export declare class AffixSDK {
      * Lookup a record via a data-check adapter (JSON, KV, CSV, fixed-width, pipe).
      * Returns exact string fields; pass ⇔ fields.claim === fields.required.
      */
-    check(source: DataCheckSource, query: DataCheckQuery): Promise<DataCheckResult | null>;
+    check(source: DataCheckSource | "internal" | "external", query: DataCheckQuery): Promise<DataCheckResult | null>;
     /**
      * Data check → one local yes/no proof per request, Affix-bound like any other prove.
      *
@@ -285,7 +258,35 @@ export declare class AffixSDK {
          */
         digestsOnly?: boolean;
     }): Promise<SyncFlushResult>;
-    private doFlushOfflineQueue;
+    doFlushOfflineQueue(options: any): Promise<{
+        online: boolean;
+        attempted: number;
+        synced: number;
+        failed: number;
+        attested: number;
+        results: any[];
+        merkle_batch_root?: undefined;
+        merkle_batch_id?: undefined;
+        merkle_leaf_count?: undefined;
+        merkle_api_root?: undefined;
+        merkle_leaves_synced?: undefined;
+        merkle_leaves_per_sec?: undefined;
+        verify_chunks?: undefined;
+    } | {
+        online: boolean;
+        attempted: any;
+        synced: number;
+        failed: number;
+        attested: number;
+        merkle_batch_root: string;
+        merkle_batch_id: string;
+        merkle_leaf_count: number;
+        merkle_api_root: any;
+        merkle_leaves_synced: number;
+        merkle_leaves_per_sec: number;
+        verify_chunks: any;
+        results: any[];
+    }>;
     /**
      * Register digests as Affix Merkle leaves and ML-DSA-attest each payload (no ZK).
      * Prefer flushOfflineQueue for production (ZK + ML-DSA + Merkle on verify).
@@ -303,52 +304,79 @@ export declare class AffixSDK {
         batches: number;
     }>;
 }
-/** Thrown when a remote Affix operation is attempted while licence-only mode is active. */
-export declare class LicenceOnlyError extends Error {
-    constructor(message?: string);
-}
 export { LicenceError };
 export { defaultContext, buildYesNoWitness, isAffixCircuit, normaliseWitnessInputs, normaliseWitnessPackage, } from "./witness.js";
 export { buildMerkleTree, buildProofMerkleBatch, verifyBatchInclusions, verifyMerkleProof, merkleAuditItemsFromBatch, normalizeMerkleAuditLeaf, MAX_MERKLE_LEAVES, } from "./merkle.js";
-export type { MerkleBatch, MerkleProofStep, BatchLeaf } from "./merkle.js";
 export { runDataCheck, fieldsExactMatch, exactFieldString, stringsEqualExact, buildCheckResult, JsonDocumentStore, KeyValueStore, CsvTableStore, FixedWidthStore, PipeDelimitedStore, SqlStore, prepareLookupSql, InMemorySqlDatabase, MongoDocumentStore, XmlDocumentStore, DbaseStore, LdifStore, DelimitedTableStore, IniSectionStore, RedisExportStore, openDataStore, DATA_STORE_KINDS, SqlLookupError, classifySqlError, wrapSqlExecutor, withQueryTimeout, createPrimaryReplicaExecutor, createPgExecutor, createMysqlExecutor, createOdbcExecutor, resolveSqlConnectionConfig, } from "./data-check/index.js";
-export type { DataCheckFields, DataCheckQuery, DataCheckResult, DataCheckSource, DataCheckStyle, ProveFromCheckInput, FixedFieldDef, SqlExecutor, SqlDialect, DataStoreKind, OpenDataStoreOptions, SqlErrorCode, SqlLookupOutcome, SqlConnectionConfig, SqlStoreOptions, PrimaryReplicaOptions, } from "./data-check/index.js";
-export type { CodeKind, CodeFormat, CodeCarrierMode, MaxUsesOption, ZkCodeHeader, GenerateCodeInput, GenerateCodeFromProveInput, GeneratedCode, ReadCodeInput, ReadCodeResult, } from "./codes/index.js";
 export { ZK_CARRIER_PREFIX, packCarrier, unpackCarrier, isZkCarrier, renderQrSvg, renderBarcodeSvg, CodeUseStore, } from "./codes/index.js";
 export { DEFAULT_AFFIX_API_BASE, DEFAULT_PRESENTMENT_PATH, buildPresentmentLink, extractCarrierFromScan, normaliseApiBase, normalisePresentmentBase, } from "./constants.js";
 export { STORAGE_KEYS, PathMappedJsonStore, JsonFileDocumentStore, createDefaultJsonDocumentStore, MemoryDocumentStore, createMemoryDocumentStore, docGet, docSet, docDelete, } from "./storage/index.js";
-export type { AffixDocumentStore, AffixStorageConfig, MaybePromise, StorageKey, } from "./storage/index.js";
 export { localVerify, unpackProof, proofDigest } from "./local-prove.js";
-export { canonicalLocalPayload, createLocalSigningKeyPair, signLocalPayload, verifyLocalPayload, } from "./local-signing.js";
-export type { LocalAttestation, LocalSigningKeyPair, } from "./local-signing.js";
 export { lightProve, lightVerify, packLightProof, unpackLightProof, isLightProof, LIGHT_SCHEME, LIGHT_ALGORITHM, } from "./light-prove.js";
-export type { LightProofBody, LightProveResult, LightVerifyResult, } from "./light-prove.js";
+export { canonicalLocalPayload, createLocalSigningKeyPair, signLocalPayload, verifyLocalPayload, } from "./local-signing.js";
 export { wrapProofEnvelope, verifyProofEnvelope } from "./proof-envelope.js";
-export type { ProofEnvelope } from "./proof-envelope.js";
 export { SpendJournal } from "./spend-journal.js";
-export type { SpendEvent, SpendHead, SpendIntegrity, SpendAdmission, SpendConsumeResult, } from "./spend-journal.js";
 export { StatsStore, emptyStats } from "./stats.js";
-export type { AffixStats } from "./stats.js";
 export { loadOperatorConfig, saveOperatorConfig, ensureSecrets, defaultOperatorConfig, defaultPaths, mergeConfigWithEnv, loadApiKey, saveApiKey, apiKeyHint, } from "./operator-config.js";
-export type { OperatorConfig, OperatorPaths } from "./operator-config.js";
 export { HttpDataStore, createHttpDataStore, testHttpProfile } from "./http-data-store.js";
 export { HSM_PROVIDERS, defaultHsmProfile, validateHsmProfile, testHsmConnection, summariseHsmProfile, } from "./hsm.js";
-export type { HsmProbeResult, HsmSummary, HsmValidation } from "./hsm.js";
 export { withFileLock } from "./file-lock.js";
-export { runInteractive, runSetupWizard } from "./interactive.js";
-export type { AffixCredential, Attestation, AffixSdkConfig, ProveResult, SyncFlushResult, VerifyResult, WitnessContext, WitnessPackage, LicenceState, LicenceEntitlements, HttpDataProfile, HsmProfile, HsmProvider, } from "./types.js";
-export {
-  AgentTrust,
-  CapabilityPolicy,
-  ENROLLED_CLAIM,
-  identityBinding,
-  issueAgentCredential,
-  KYA_CIRCUIT,
-  verifyAgentCredential,
-  DEFAULT_API_BASE as KYA_DEFAULT_API_BASE,
-  DEFAULT_HUB_URL as KYA_DEFAULT_HUB_URL,
-} from "./agent-trust/index.js";
-/** Create a Know Your Agent control plane (defaults to api.affix-io.com). */
+export { AgentTrust, CapabilityPolicy, KYA_DEFAULT_API_BASE, KYA_DEFAULT_HUB_URL, ENROLLED_CLAIM, identityBinding, issueAgentCredential, KYA_CIRCUIT, verifyAgentCredential, };
+export { runDashboard } from "./dashboard/server.js";
+export type ProveInput = {
+    circuitId?: string;
+    credential?: AffixCredential;
+    context?: Partial<WitnessContext>;
+    witness?: WitnessPackage;
+    fields?: Record<string, string | number | boolean>;
+    /** Override the configured proof mode for this call. */
+    proofMode?: "hmac" | "ultrahonk";
+    /** Force a decision for HMAC proofs. Ignored by UltraHonk (circuit decides). */
+    decision?: "yes" | "no" | boolean;
+    /**
+     * auto: use network for licence when possible, else offline local prove.
+     * offline: force offline local prove + queue (no Affix RTT).
+     * online: require live licence; still local ZK prove.
+     */
+    mode?: "auto" | "offline" | "online";
+    /** When true (default from config), enqueue for Affix verify/merkle audit later. */
+    queueForSync?: boolean;
+    /** One host request → one proof. Auto-generated if omitted. */
+    request_id?: string;
+    origin?: "manual" | "data_check" | string;
+    record_id?: string;
+    meta?: Record<string, string>;
+};
+/** Prove result bound to an exact data-check field map (immutable echo). */
+export type ProveFromCheckResult = ProveResult & {
+    /** Exact field strings from the store check (must match proof decision mapping). */
+    fields: DataCheckResult["fields"];
+    check: DataCheckResult;
+    /** true when decision === "yes" ⇔ check.pass ⇔ claim === required */
+    field_aligned: boolean;
+};
+/** Data-check prove + Affix verify (same contract as proveAndVerify). */
+export type ProveFromCheckVerifyResult = {
+    prove: ProveFromCheckResult;
+    verify: VerifyResult;
+};
+export type { MerkleBatch, MerkleProofStep, BatchLeaf } from "./merkle.js";
+export type { DataCheckFields, DataCheckQuery, DataCheckResult, DataCheckSource, DataCheckStyle, ProveFromCheckInput, FixedFieldDef, SqlExecutor, SqlDialect, DataStoreKind, OpenDataStoreOptions, SqlErrorCode, SqlLookupOutcome, SqlConnectionConfig, SqlStoreOptions, PrimaryReplicaOptions } from "./data-check/index.js";
+export type { CodeKind, CodeFormat, CodeCarrierMode, MaxUsesOption, ZkCodeHeader, GenerateCodeInput, GenerateCodeFromProveInput, GeneratedCode, ReadCodeInput, ReadCodeResult } from "./codes/index.js";
+export type { AffixDocumentStore, AffixStorageConfig, MaybePromise, StorageKey } from "./storage/index.js";
+export type { LocalAttestation, LocalSigningKeyPair } from "./local-signing.js";
+export type { LightProofBody, LightProveResult, LightVerifyResult } from "./light-prove.js";
+export type { ProofEnvelope } from "./proof-envelope.js";
+export type { SpendEvent, SpendHead, SpendIntegrity, SpendAdmission, SpendConsumeResult } from "./spend-journal.js";
+export type { AffixStats } from "./stats.js";
+export type { OperatorConfig, OperatorPaths } from "./operator-config.js";
+export type { HsmProbeResult, HsmSummary, HsmValidation } from "./hsm.js";
+export type { AffixCredential, Attestation, AffixSdkConfig, ProveResult, SyncFlushResult, VerifyResult, WitnessContext, WitnessPackage, LicenceState, LicenceEntitlements, HttpDataProfile, HsmProfile, HsmProvider } from "./types.js";
+export { AgenticPaymentPolicy, agenticPay, createAgentCheckoutReceipt, createAgenticPayKit, createPaymentMandate, mcpToolGate, paidApiAgentPolicy, shoppingAgentPolicy, spendingPolicy, verifyAgentSpend, x402BeforePay, } from "./agentic-pay-kit.js";
+/**
+ * Create a Know Your Agent control plane bound to api.affix-io.com by default.
+ * Credit: @paparichens
+ */
 export declare function createAgentTrust(options?: {
     apiKey?: string;
     sdk?: AffixSDK;
@@ -358,17 +386,3 @@ export declare function createAgentTrust(options?: {
     operatorBaseDir?: string;
     licenceOnly?: boolean;
 }): InstanceType<typeof AgentTrust>;
-export { runDashboard } from "./dashboard/server.js";
-export {
-  AgenticPaymentPolicy,
-  agenticPay,
-  createAgentCheckoutReceipt,
-  createAgenticPayKit,
-  createPaymentMandate,
-  mcpToolGate,
-  paidApiAgentPolicy,
-  shoppingAgentPolicy,
-  spendingPolicy,
-  verifyAgentSpend,
-  x402BeforePay,
-} from "./agentic-pay-kit.js";

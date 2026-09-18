@@ -12,20 +12,6 @@ export type SqlExecutorWrapOptions = {
     /** Optional label for errors. */
     name?: string;
 };
-/**
- * Race a promise against a deadline. On timeout, rejects with SqlLookupError code=timeout.
- * Note: underlying driver work may continue unless the driver supports cancellation.
- */
-export declare function withQueryTimeout<T>(work: Promise<T>, timeoutMs: number, context?: {
-    dialect?: string;
-    role?: "primary" | "replica";
-}): Promise<T>;
-/** Guard: data-check path should only run SELECT (and WITH … SELECT). */
-export declare function assertSelectOnly(sql: string, readOnly: boolean | undefined): void;
-/**
- * Wrap any SqlExecutor with timeout, readOnly SELECT guard, and error classification.
- */
-export declare function wrapSqlExecutor(inner: SqlExecutor, options?: SqlExecutorWrapOptions): SqlExecutor;
 export type PrimaryReplicaOptions = {
     primary: SqlExecutor;
     /** Optional replica / hot standby. Lookups prefer this when preferReplica is true. */
@@ -41,6 +27,20 @@ export type PrimaryReplicaOptions = {
     dialect?: SqlDialect;
     readOnly?: boolean;
 };
+/**
+ * Race a promise against a deadline. On timeout, rejects with SqlLookupError code=timeout.
+ * Note: underlying driver work may continue unless the driver supports cancellation.
+ */
+export declare function withQueryTimeout<T>(work: Promise<T>, timeoutMs: number, context?: {
+    dialect?: string;
+    role?: "primary" | "replica";
+}): Promise<T>;
+/** Guard: data-check path should only run SELECT (and WITH … SELECT). */
+export declare function assertSelectOnly(sql: string, readOnly: boolean | undefined): void;
+/**
+ * Wrap any SqlExecutor with timeout, readOnly SELECT guard, and error classification.
+ */
+export declare function wrapSqlExecutor(inner: SqlExecutor, options?: SqlExecutorWrapOptions): SqlExecutor;
 /**
  * Primary + optional read-replica executor for data-check lookups.
  * Does not invent multi-region logic: host supplies two pools (primary write URL, replica RO URL).

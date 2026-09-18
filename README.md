@@ -1,28 +1,44 @@
 # AffixIO SDK
 
 [![npm affixio](https://img.shields.io/npm/v/affixio?label=npm%20affixio)](https://www.npmjs.com/package/affixio)
+[![GitHub stars](https://img.shields.io/github/stars/AffixIO/SDK?style=social)](https://github.com/AffixIO/SDK)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](package.json)
 [![FIPS 204](https://img.shields.io/badge/FIPS%20204-ML--DSA-blue)](https://csrc.nist.gov/pubs/fips/204/final)
 [![ZK](https://img.shields.io/badge/zero--knowledge-Noir%20%2B%20Barretenberg-8b5cf6)](https://noir-lang.org/)
 
-Node.js SDK for **privacy-preserving proofs** with **post-quantum attestation**. Prove eligibility, KYC outcomes, age checks, residency, and other predicates without exposing raw credentials. Proofs are generated locally on your host, ML-DSA-65 signed, and verifiable locally or through the AffixIO API.
+Node.js SDK for **host-side signed ACTION attestation**. Know Your Agent (KYA) enrols an agent. The Agentic Pay Kit (`agenticPay`, `x402BeforePay`, `mcpToolGate`, payment mandates) binds a yes/no spend or tool decision to an HMAC or UltraHonk proof and an ML-DSA-65 envelope. PII stays on the host. This is agent ACTION trust, not person KYC.
 
-Also in the package: **Know Your Agent (KYA)** enrolment and the **Agentic Pay Kit** (`agenticPay`, `x402BeforePay`, `mcpToolGate`, payment mandates) — host-side signed ACTION attestation for agent spend. Not person KYC.
-
-Built for developers working with [Noir](https://noir-lang.org/) circuits, [Barretenberg](https://github.com/AztecProtocol/barretenberg) (UltraHonk), verifiable credentials, and [NIST post-quantum standards](https://csrc.nist.gov/projects/post-quantum-cryptography) ([FIPS 204 ML-DSA](https://csrc.nist.gov/pubs/fips/204/final)).
-
-## Install
-
-Primary package on npm:
+Install from npm:
 
 ```bash
 npm i affixio
 ```
 
-Package: [affixio](https://www.npmjs.com/package/affixio) · Source: [AffixIO/SDK](https://github.com/AffixIO/SDK) · Docs: [affix-io.com/agent-trust](https://www.affix-io.com/agent-trust/)
+The same tree is on GitHub as [AffixIO/SDK](https://github.com/AffixIO/SDK) (`src/` TypeScript, Apache-2.0). Docs: [affix-io.com/agent-trust](https://www.affix-io.com/agent-trust/).
+
+The SDK also proves host-held predicates locally (Noir `simple_yesno` / `yesno`, UltraHonk optional) and can Merkle-anchor digests through the AffixIO API. Those proofs are about records and policy on your machine. They are not a person-identity or age-KYC product.
 
 > The older `@affix-io/sdk` scope was unpublished on 2026-08-17. Use `affixio`.
+
+## Repo layout
+
+| Path | What it is |
+|---|---|
+| `src/` | TypeScript source of truth |
+| `dist/` | Compiled ESM + `.d.ts` (what `npm i affixio` runs) |
+| `circuits/` | Bundled Noir circuits (`simple_yesno`, `yesno`) |
+| `examples/` | Agentic pay, x402, MCP gate, yes/no demo |
+| `test/` | Smoke tests (`npm test` builds `src/` then imports `dist/`) |
+
+```bash
+git clone https://github.com/AffixIO/SDK.git
+cd SDK
+npm install
+npm test
+```
+
+Requires Node.js 20+ (`package.json` `engines.node`).
 
 ## Why AffixIO
 
@@ -39,19 +55,20 @@ Your witnesses and credentials never leave the host unless you explicitly verify
 
 | Source | Best for |
 |---|---|
-| **[npm](https://www.npmjs.com/package/affixio)** `affixio` | **Primary.** Production apps, CI, Docker, `package.json`. Prefer `npm i affixio`. |
-| **[GitHub](https://github.com/AffixIO/SDK)** `AffixIO/SDK` | Source review, Apache 2.0 audit, pinning a commit, air-gapped installs from tarball |
+| **[npm](https://www.npmjs.com/package/affixio)** `affixio` | Production apps, CI, Docker. Prefer `npm i affixio`. |
+| **[GitHub](https://github.com/AffixIO/SDK)** `AffixIO/SDK` | Read `src/`, Apache-2.0 audit, pin a commit, air-gapped tarball |
 
 ```bash
 npm i affixio
 ```
 
-Or clone when you need to inspect exactly what ships, vendor the repo, or run the CLI without adding a registry dependency:
+Or clone to read the TypeScript and rebuild:
 
 ```bash
 git clone https://github.com/AffixIO/SDK.git
 cd SDK
 npm install
+npm run build
 node dist/cli.js set-key --api-key aio_live_...
 node dist/cli.js health
 ```
@@ -81,7 +98,7 @@ Typical integration points:
 
 - **API middleware**: prove a predicate before a sensitive route runs (payout, account change, data export).
 - **Background workers**: batch eligibility checks; `flushOfflineQueue()` when connectivity returns.
-- **LLM orchestration**: gate tool calls, model tiers, or retrieval scopes with a proof instead of passing raw KYC or HR data into the prompt.
+- **LLM orchestration**: gate tool calls, model tiers, or retrieval scopes with a host-side ACTION proof instead of putting raw records in the prompt.
 - **Agent and MCP servers**: return a `proof_id` alongside tool results so downstream systems can verify without seeing credentials.
 - **Webhooks and event pipelines**: attach a proof digest to an audit log entry via Merkle anchoring.
 
@@ -189,7 +206,7 @@ import { AffixSDK, defaultContext } from "affixio";
 
 const sdk = new AffixSDK({ apiKey: process.env.AFFIX_API_KEY });
 
-// credential comes from your KYC / HR store, not from the prompt
+// credential comes from your host store, not from the prompt
 export async function beforeToolRun(claimValue: string, required: string) {
   const allowed = claimValue === required; // your policy decides for hmac proofs
   const { valid, proof_id } = await sdk.prove({
@@ -230,10 +247,10 @@ npx affix-sdk set-key --api-key aio_live_...   # writes .affix/secrets/api.key, 
 
 | Variable | Required | Default |
 |---|---|---|
-| `AFFIX_API_KEY` | Yes | None — pass `apiKey`, export `AFFIX_API_KEY`, or store it with `set-key` |
+| `AFFIX_API_KEY` | Yes | None. Pass `apiKey`, export `AFFIX_API_KEY`, or store it with `set-key` |
 | `AFFIX_API_BASE` | No | `https://api.affix-io.com` |
 
-The SDK does not read `.env` files itself: use `set-key`, an exported variable, or load `.env` in your host app (the yes/no demo uses `dotenv`). `.env.example` is a template — replace the sample value with your own key.
+The SDK does not read `.env` files itself: use `set-key`, an exported variable, or load `.env` in your host app (the yes/no demo uses `dotenv`). `.env.example` is a template. Replace the sample value with your own key.
 
 Commercial keys with higher throughput: [affix-io.com](https://affix-io.com).
 
@@ -364,7 +381,7 @@ npx affix-sdk dashboard                        # local ops UI on 127.0.0.1:8787
 npx affix-sdk menu                             # interactive operator terminal
 ```
 
-`verify` and `verify-local` take proof hex, not a `proof_id`. There is no `circuits` subcommand — `health` prints the catalogue.
+`verify` and `verify-local` take proof hex, not a `proof_id`. There is no `circuits` subcommand. `health` prints the catalogue.
 
 ## Post-quantum attestation
 
@@ -375,7 +392,7 @@ proof.signature;             // { algorithm: "ML-DSA-65", key_id, signature_b64,
 sdk.exportLocalPublicKey();  // publish this so verifiers can check your signatures
 ```
 
-The proving backend uses Noir compiled to ACIR, with Barretenberg UltraHonk for `ultrahonk` mode — the same stack documented in the [Noir web app guide](https://noir-lang.org/docs/dev/guides/building_a_web_app).
+The proving backend uses Noir compiled to ACIR, with Barretenberg UltraHonk for `ultrahonk` mode. Same stack as the [Noir web app guide](https://noir-lang.org/docs/dev/guides/building_a_web_app).
 
 ## Circuit library
 
@@ -383,12 +400,14 @@ The proving backend uses Noir compiled to ACIR, with Barretenberg UltraHonk for 
 
 | Domain | Examples |
 |---|---|
-| Identity / KYC | `kyc`, `attested_boolean`, `attested_membership` |
-| Age / health | `health_age`, `health_vaccination_status` |
-| Residency / travel | `ticket_local_resident`, `travel_visa_eligibility` |
-| Education | `edu_attendance_threshold`, `edu_enrollment_verification` |
+| Host predicates (API catalogue templates) | `attested_boolean`, `attested_membership`, `kyc` (record flag, not person onboarding) |
+| Age / health records on the host | `health_age`, `health_vaccination_status` |
+| Residency / travel records | `ticket_local_resident`, `travel_visa_eligibility` |
+| Education records | `edu_attendance_threshold`, `edu_enrollment_verification` |
 | Merkle / audit | `merkle_batch`, `audit_proof`, `quantum_safe_token` |
-| Governance | `govt_voting_eligibility`, `zk_voting` |
+| Governance records | `govt_voting_eligibility`, `zk_voting` |
+
+Those catalogue IDs are remote templates. Local proving in this SDK is `simple_yesno` and `yesno`. AffixIO does not sell person KYC, age verification of a person, or identity of a human. Predicate proofs run on host data you already hold.
 
 Run `npx affix-sdk health` for the full list from the live API.
 
@@ -422,24 +441,9 @@ Local paths: `.affix/proofs.json`, `.affix/offline-queue.json`, `.affix/spend/`,
 | `GET /v1/merkle/root` | Audit Merkle root (public) |
 | `POST /v1/merkle/audit`, `POST /v1/merkle/audit/batch`, `POST /v1/merkle/verify-proof` | Anchor and verify audit leaves |
 
-Licence keys (`aio_live_...`) authenticate the licence and quota routes. Verify, attest, and Merkle routes need an API key issued for your integration — the `aio_...` keys from Hub.
+Licence keys (`aio_live_...`) authenticate the licence and quota routes. Verify, attest, and Merkle routes need an API key issued for your integration (the `aio_...` keys from Hub).
 
 ## Use cases
-
-### AI, LLMs, and agents
-
-Large language models should not receive passports, medical records, or full KYC payloads just to answer "is this user allowed?". The SDK lets a **trusted backend** prove a yes/no predicate and hand the model (or tool runtime) only the outcome.
-
-| Scenario | Circuit examples | What you prove without exposing |
-|---|---|---|
-| Tool gating before expensive calls | `attested_boolean`, `kyc`, `govt_security_clearance` | User tier, account standing, or clearance level |
-| RAG and document access | `attested_membership`, `govt_professional_license`, `edu_enrollment_verification` | Group membership or role without employee/student IDs |
-| Age and consent checks for restricted advice | `health_age`, `ent_age_restriction`, `hosp_checkin_age` | Age threshold met, not date of birth |
-| Healthcare-adjacent assistants | `health_consent_verification`, `health_prescription_auth`, `health_clinical_trial_eligibility` | Consent or trial eligibility, not PHI |
-| Cross-border or policy-bound models | `travel_visa_eligibility`, `travel_restriction_check`, `govt_immigration_status` | Eligibility flag, not passport number |
-| Agent audit trail | `audit_proof`, `merkle_batch` | That a decision was proved at a point in time |
-
-The circuit names above are API catalogue templates. Locally provable today are `simple_yesno` and `yesno`, so a tool gate looks like the verified example in [Demo](#3-prove-before-the-llm-tool-router): prove `simple_yesno` with `defaultContext({ required_claim_hash: "cleared" })`, then hand `proof_id` to logs or a Merkle audit — never to the model context. Use `decision` when your own policy made the call, or `proofMode: "ultrahonk"` when the proof should decide.
 
 ### Agent spend (KYA and Agentic Pay)
 
@@ -454,10 +458,26 @@ node examples/agentic-pay/agentic-pay.mjs
 node examples/mcp-tool-gate/tool-call.mjs
 ```
 
+### AI, LLMs, and agents
+
+Models should not receive passports, medical records, or other host-held PII just to answer "is this action allowed?". The SDK lets a trusted backend prove a yes/no predicate and hand the model (or tool runtime) only the outcome. That is host policy attestation, not person KYC.
+
+| Scenario | Circuit examples | What you prove without exposing |
+|---|---|---|
+| Tool gating before expensive calls | `attested_boolean`, `kyc`, `govt_security_clearance` | Account standing or a host-held clearance flag |
+| RAG and document access | `attested_membership`, `govt_professional_license`, `edu_enrollment_verification` | Group membership or role without employee/student IDs |
+| Threshold checks on host records | `health_age`, `ent_age_restriction`, `hosp_checkin_age` | A threshold was met, not the underlying field |
+| Healthcare-adjacent assistants | `health_consent_verification`, `health_prescription_auth`, `health_clinical_trial_eligibility` | Consent or trial eligibility, not PHI |
+| Cross-border or policy-bound models | `travel_visa_eligibility`, `travel_restriction_check`, `govt_immigration_status` | Eligibility flag, not passport number |
+| Agent audit trail | `audit_proof`, `merkle_batch` | That a decision was proved at a point in time |
+
+The circuit names above are API catalogue templates. Locally provable today are `simple_yesno` and `yesno`, so a tool gate looks like the verified example in [Demo](#3-prove-before-the-llm-tool-router): prove `simple_yesno` with `defaultContext({ required_claim_hash: "cleared" })`, then hand `proof_id` to logs or a Merkle audit, never to the model context. Use `decision` when your own policy made the call, or `proofMode: "ultrahonk"` when the proof should decide.
+
 ## Related projects
 
 | Project | Stars | Description |
 |---|---|---|
+| [AffixIO/SDK](https://github.com/AffixIO/SDK) | ![Stars](https://img.shields.io/github/stars/AffixIO/SDK) | This repo. Node SDK source (`affixio`) |
 | [noir-lang/noir](https://github.com/noir-lang/noir) | ![Stars](https://img.shields.io/github/stars/noir-lang/noir) | The ZK domain-specific language the bundled circuits are written in |
 | [AztecProtocol/barretenberg](https://github.com/AztecProtocol/barretenberg) | ![Stars](https://img.shields.io/github/stars/AztecProtocol/barretenberg) | Proving backend behind `ultrahonk` proofs |
 | [paulmillr/noble-post-quantum](https://github.com/paulmillr/noble-post-quantum) | ![Stars](https://img.shields.io/github/stars/paulmillr/noble-post-quantum) | ML-DSA-65 / SLH-DSA primitives used for attestation |
@@ -472,7 +492,7 @@ Apache License 2.0. See [LICENSE](LICENSE).
 
 Report vulnerabilities via [SECURITY.md](SECURITY.md).
 
-Secrets live under `.affix/secrets/` with mode `0600`, and `.affix/` is never published. `operatorConfig()` and `affixio config` report presence flags only; HSM profiles store environment variable names, never PINs or tokens. The bundled `.env.example` placeholder is not a working key — replace it with your own.
+Secrets live under `.affix/secrets/` with mode `0600`, and `.affix/` is never published. `operatorConfig()` and `affixio config` report presence flags only; HSM profiles store environment variable names, never PINs or tokens. The bundled `.env.example` placeholder is not a working key. Replace it with your own.
 
 ---
 

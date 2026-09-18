@@ -1,4 +1,4 @@
-import type { DataCheckQuery, DataCheckResult, DataCheckSource } from "../types.js";
+import type { DataCheckQuery, DataCheckResult } from "../types.js";
 type DbfField = {
     name: string;
     type: string;
@@ -9,15 +9,13 @@ type DbfField = {
  * Historic dBASE III/IV / FoxPro / Clipper style .dbf files (read-only).
  * Common in older PAS / GP system exports.
  */
-export declare class DbaseStore implements DataCheckSource {
-    readonly name = "dbase";
-    readonly style: "legacy";
-    private rows;
-    private idField;
+export declare class DbaseStore {
+    name: string;
+    style: "legacy";
+    rows: any;
+    idField: any;
     constructor(rows: Array<Record<string, string>>, idField?: string);
-    static fromFile(path: string, options?: {
-        idField?: string;
-    }): DbaseStore;
+    static fromFile(path: any, options: any): DbaseStore;
     lookup(query: DataCheckQuery): Promise<DataCheckResult | null>;
 }
 export declare function parseDbf(buf: Buffer): {

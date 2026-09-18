@@ -1,3 +1,4 @@
+/* Credit: @paparichens */
 import { createHash, randomBytes } from "node:crypto";
 import { gunzipSync, gzipSync } from "node:zlib";
 import { isAffixCircuit } from "../witness.js";
@@ -236,7 +237,7 @@ export function selectSymbology(kind, byteSize, symbology) {
     }
     return { kind: "barcode", symbology: symbology ?? "pdf417", mode: "compact" };
 }
-export function digestProofHex(proofHex, circuitId = "simple_yesno", valid = true) {
+export function digestProofHex(proofHex, circuitId, valid) {
     return createHash("sha256")
         .update(`${circuitId}:${valid}:${proofHex}`)
         .digest("hex");

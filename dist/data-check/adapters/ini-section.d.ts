@@ -1,4 +1,4 @@
-import type { DataCheckQuery, DataCheckResult, DataCheckSource } from "../types.js";
+import type { DataCheckQuery, DataCheckResult } from "../types.js";
 /**
  * Historic .ini / sectioned property store (old config + small PAS property bags).
  *
@@ -6,11 +6,11 @@ import type { DataCheckQuery, DataCheckResult, DataCheckSource } from "../types.
  * status=in_ed
  * ward=A&E
  */
-export declare class IniSectionStore implements DataCheckSource {
-    readonly name = "ini_section";
-    readonly style: "legacy";
-    private sections;
+export declare class IniSectionStore {
+    name: string;
+    style: "legacy";
+    sections: any;
     constructor(sections: Map<string, Record<string, string>>);
-    static fromFile(path: string): IniSectionStore;
+    static fromFile(path: any): IniSectionStore;
     lookup(query: DataCheckQuery): Promise<DataCheckResult | null>;
 }
