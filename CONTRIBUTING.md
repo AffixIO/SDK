@@ -1,17 +1,6 @@
 # Contributing
 
-This repository ships compiled JavaScript in `dist/`. TypeScript source is maintained privately by AffixIO.
-
-## What we accept
-
-- Documentation fixes (README, SECURITY, examples)
-- Issue reports with reproduction steps
-- Feature requests with concrete use cases
-
-## What we do not accept
-
-- Pull requests that modify `dist/` directly
-- Changes that expose witness construction or circuit internals
+Source of truth is TypeScript in `src/`. `npm run build` compiles it to `dist/` with `tsc`.
 
 ## Development setup
 
@@ -19,9 +8,18 @@ This repository ships compiled JavaScript in `dist/`. TypeScript source is maint
 git clone https://github.com/AffixIO/SDK.git
 cd SDK
 npm install
-cp .env.example .env
-npx affix-sdk health
+npm test
 ```
+
+Requires Node.js 20+.
+
+## What we accept
+
+- Fixes and tests against `src/`
+- Documentation (README, SECURITY, examples)
+- Issue reports with reproduction steps
+
+Do not hand-edit `dist/`. Change `src/` and run `npm run build`.
 
 ## Code of conduct
 
@@ -29,4 +27,4 @@ Be direct, stay on topic, no harassment.
 
 ## Commercial access
 
-For source access, custom circuits, or higher API limits: [affix-io.com](https://affix-io.com).
+For custom circuits or higher API limits: [affix-io.com](https://affix-io.com).

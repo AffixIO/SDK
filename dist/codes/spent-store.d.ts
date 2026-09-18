@@ -1,10 +1,11 @@
-import { type AffixDocumentStore } from "../storage/index.js";
+import { SpendJournal } from "../spend-journal.js";
+/**
+ * Tamper-evident spend journal adapter with the same async surface as the legacy store.
+ */
 export declare class CodeUseStore {
-    private readonly docs;
-    private readonly key;
-    constructor(docsOrPath?: AffixDocumentStore | string, key?: string);
-    private read;
-    private write;
+    journal: any;
+    constructor(journalOrPath?: SpendJournal | string, keysPath?: string);
+    spendJournal(): any;
     getUses(gateId: string, proofDigest: string): Promise<number>;
     checkAdmission(gateId: string, proofDigest: string, maxUses: number): Promise<{
         admitted: boolean;
@@ -19,5 +20,7 @@ export declare class CodeUseStore {
         reason?: string;
     }>;
     reset(gateId?: string, proofDigest?: string): Promise<void>;
+    status(): Promise<any>;
+    verifyIntegrity(): Promise<any>;
 }
-export declare function resolveSidecarPath(basePath: string, codeId: string): string;
+export { resolveSidecarPath } from "./spent-store-legacy.js";

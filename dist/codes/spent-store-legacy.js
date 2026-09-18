@@ -1,5 +1,5 @@
+/* Credit: @paparichens */
 import { join } from "node:path";
-
 export function resolveSidecarPath(basePath, codeId) {
     if (basePath.endsWith(".zk.json"))
         return basePath;

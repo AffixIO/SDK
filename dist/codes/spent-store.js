@@ -1,6 +1,5 @@
 /* Credit: @paparichens */
 import { SpendJournal } from "../spend-journal.js";
-
 /**
  * Tamper-evident spend journal adapter with the same async surface as the legacy store.
  */
@@ -10,7 +9,7 @@ export class CodeUseStore {
         if (journalOrPath instanceof SpendJournal) {
             this.journal = journalOrPath;
         }
-        else if (typeof journalOrPath === "object" && journalOrPath !== null && "get" in journalOrPath) {
+        else if (journalOrPath && typeof journalOrPath === "object" && "get" in journalOrPath) {
             throw new Error("code_use_store_requires_spend_journal_in_licence_only_mode");
         }
         else {
@@ -31,7 +30,7 @@ export class CodeUseStore {
     async consume(gateId, proofDigest, maxUses) {
         return this.journal.consume(gateId, proofDigest, maxUses);
     }
-    async reset() {
+    async reset(gateId, proofDigest) {
         throw new Error("spend_journal_reset_disabled: journal is append-only");
     }
     async status() {
@@ -41,5 +40,4 @@ export class CodeUseStore {
         return this.journal.verifyIntegrity();
     }
 }
-
 export { resolveSidecarPath } from "./spent-store-legacy.js";

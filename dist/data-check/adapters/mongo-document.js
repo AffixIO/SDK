@@ -1,3 +1,4 @@
+/* Credit: @paparichens */
 import { readFileSync, existsSync } from "node:fs";
 import { buildCheckResult } from "../map-check.js";
 /**
@@ -12,7 +13,7 @@ export class MongoDocumentStore {
     style = "modern";
     docs;
     idField;
-    constructor(docs, idField = "_id") {
+    constructor(docs, idField) {
         this.docs = docs;
         this.idField = idField;
     }

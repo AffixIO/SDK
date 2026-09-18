@@ -1,9 +1,10 @@
-import { docGet, docSet, STORAGE_KEYS } from "./storage/index.js";
+/* Credit: @paparichens */
+import { docGet, docSet } from "./storage/index.js";
 export class ProofStore {
     docs;
     max;
     key;
-    constructor(docs, max = 50_000, key = STORAGE_KEYS.proofs) {
+    constructor(docs, max, key) {
         this.docs = docs;
         this.max = max;
         this.key = key;

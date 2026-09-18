@@ -1,6 +1,5 @@
 /* Credit: @paparichens */
 import { requestJson } from "./http.js";
-
 /**
  * HTTP profile for internal/external customer data APIs (not Affix licence).
  */
@@ -8,7 +7,7 @@ export class HttpDataStore {
     name;
     style;
     profile;
-    constructor(profile, name = "http") {
+    constructor(profile, name) {
         this.profile = profile;
         this.name = name;
         this.style = "modern";
@@ -68,14 +67,12 @@ export class HttpDataStore {
         };
     }
 }
-
 export function createHttpDataStore(profile, name) {
     if (!profile?.baseUrl) {
         throw new Error("http_profile_requires_baseUrl");
     }
     return new HttpDataStore(profile, name);
 }
-
 export async function testHttpProfile(profile) {
     const store = createHttpDataStore(profile, "test");
     const sampleId = profile.sampleId ?? "test";

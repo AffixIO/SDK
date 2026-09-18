@@ -1,8 +1,7 @@
 /* Credit: @paparichens */
 import { closeSync, existsSync, mkdirSync, openSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
-
-export function withFileLock(lockPath, fn, options = {}) {
+export function withFileLock(lockPath, fn, options) {
     const timeoutMs = options.timeoutMs ?? 10_000;
     const pollMs = options.pollMs ?? 25;
     mkdirSync(dirname(lockPath), { recursive: true });
@@ -39,7 +38,6 @@ export function withFileLock(lockPath, fn, options = {}) {
         }
     }
 }
-
 export function atomicAppendLine(path, line) {
     mkdirSync(dirname(path), { recursive: true });
     const tmp = `${path}.${process.pid}.tmp`;

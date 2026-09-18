@@ -1,5 +1,6 @@
-import type { DataCheckQuery, DataCheckResult, DataCheckSource, SqlDialect, SqlExecutor } from "../types.js";
-import { SqlLookupError, type SqlLookupOutcome } from "../sql-errors.js";
+import { SqlLookupError } from "../sql-errors.js";
+import type { DataCheckQuery, DataCheckResult, SqlDialect, SqlExecutor } from "../types.js";
+import type { SqlLookupOutcome } from "../sql-errors.js";
 export type SqlStoreOptions = {
     /** Physical / logical table name. */
     table: string;
@@ -49,53 +50,26 @@ export type SqlStoreOptions = {
  *   new SqlStore(pgExecutor, { table: "patients", dialect: "postgres" })
  *   SqlStore.fromPg(pool, { table: "patients", timeoutMs: 10_000, readOnly: true })
  */
-export declare class SqlStore implements DataCheckSource {
-    readonly name: string;
-    readonly style: "modern" | "legacy";
-    private readonly executor;
-    private readonly options;
+export declare class SqlStore {
+    name: any;
+    style: any;
+    executor: any;
+    options: any;
     constructor(executor: SqlExecutor, options: SqlStoreOptions);
     /** Generic path when you already built an SqlExecutor (pg/mysql/odbc factories). */
-    static fromExecutor(executor: SqlExecutor, options: SqlStoreOptions): SqlStore;
+    static fromExecutor(executor: any, options: any): SqlStore;
     /** Wrap node-postgres (pg): client.query returns { rows }. */
-    static fromPg(client: {
-        query: (sql: string, params?: unknown[]) => Promise<{
-            rows: Array<Record<string, unknown>>;
-        }>;
-    }, options: Omit<SqlStoreOptions, "dialect"> & {
-        dialect?: SqlDialect;
-    }): SqlStore;
+    static fromPg(client: any, options: any): SqlStore;
     /** Wrap mysql2/promise: connection.query returns [rows, fields]. */
-    static fromMysql(connection: {
-        query: (sql: string, params?: unknown[]) => Promise<[Array<Record<string, unknown>>, unknown]>;
-    }, options: Omit<SqlStoreOptions, "dialect"> & {
-        dialect?: SqlDialect;
-    }): SqlStore;
+    static fromMysql(connection: any, options: any): SqlStore;
     /** Wrap better-sqlite3 sync prepare/all. */
-    static fromBetterSqlite(db: {
-        prepare: (sql: string) => {
-            all: (...params: unknown[]) => Array<Record<string, unknown>>;
-        };
-    }, options: Omit<SqlStoreOptions, "dialect"> & {
-        dialect?: SqlDialect;
-    }): SqlStore;
+    static fromBetterSqlite(db: any, options: any): SqlStore;
     /** Wrap node:sqlite DatabaseSync (Node 22.5+). */
-    static fromNodeSqlite(db: {
-        prepare: (sql: string) => {
-            all: (...params: unknown[]) => Array<Record<string, unknown>>;
-        };
-    }, options: Omit<SqlStoreOptions, "dialect"> & {
-        dialect?: SqlDialect;
-    }): SqlStore;
+    static fromNodeSqlite(db: any, options: any): SqlStore;
     /** Wrap tedious / mssql style Request that resolves recordset. */
-    static fromMssql(queryFn: (sql: string, params: unknown[]) => Promise<Array<Record<string, unknown>>>, options: Omit<SqlStoreOptions, "dialect"> & {
-        dialect?: SqlDialect;
-    }): SqlStore;
+    static fromMssql(queryFn: any, options: any): SqlStore;
     /** Classic ODBC (node-odbc / ibm_db) promise query. */
-    static fromOdbc(executor: SqlExecutor, options: Omit<SqlStoreOptions, "dialect" | "style"> & {
-        dialect?: SqlDialect;
-        style?: "modern" | "legacy";
-    }): SqlStore;
+    static fromOdbc(executor: any, options: any): SqlStore;
     buildLookupSql(): string;
     /** Bind array for the current lookup SQL. Default single id. */
     buildBindParams(query: DataCheckQuery): unknown[];

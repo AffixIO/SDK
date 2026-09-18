@@ -3,7 +3,6 @@ import { createInterface } from "node:readline";
 import { stdin as input, stdout as output } from "node:process";
 import { AffixSDK } from "./index.js";
 import { defaultOperatorConfig, loadApiKey } from "./operator-config.js";
-
 function resolveApiKey(overrides = {}) {
     const baseDir = overrides.operatorBaseDir ?? ".affix";
     return (overrides.apiKey
@@ -11,17 +10,14 @@ function resolveApiKey(overrides = {}) {
         ?? loadApiKey(baseDir)
         ?? "setup_pending");
 }
-
 function sdkFromEnv(overrides = {}) {
     const apiKey = resolveApiKey(overrides);
     return new AffixSDK({
         apiKey,
         autoFlush: false,
         ...overrides,
-        apiKey,
     });
 }
-
 /**
  * Line reader that buffers input arriving before a prompt is issued.
  * Piped and here-doc input would otherwise be dropped between prompts.
@@ -61,7 +57,6 @@ function createPrompter() {
         },
     };
 }
-
 async function promptLine(rl, label, fallback) {
     const raw = await rl.question(`${label}${fallback !== undefined ? ` [${fallback}]` : ""}: `);
     if (raw === null) {
@@ -70,12 +65,10 @@ async function promptLine(rl, label, fallback) {
     }
     return raw.trim() || fallback;
 }
-
 async function promptSecret(rl, label) {
     const raw = await rl.question(`${label}: `);
     return raw === null ? "" : raw.trim();
 }
-
 async function runSetApiKey(rl, sdk) {
     const status = sdk.apiKeyStatus();
     if (status.configured) {
@@ -97,7 +90,6 @@ async function runSetApiKey(rl, sdk) {
         console.log(JSON.stringify({ ok, state: sdk.licenceState() }, null, 2));
     }
 }
-
 const HSM_MENU = `
 HSM connection
   Supported providers:
@@ -106,7 +98,6 @@ HSM connection
                       gcp_kms, google_cloud_hsm, fortanix, generic_http, custom
   PINs and cloud credentials are never stored in config. Use environment variables.
 `;
-
 async function runHsmMenu(rl, sdk) {
     console.log(HSM_MENU);
     const current = sdk.hsmStatus();
@@ -181,7 +172,6 @@ async function runHsmMenu(rl, sdk) {
         console.log(JSON.stringify(await sdk.testHsm(), null, 2));
     }
 }
-
 async function runSetup(rl, sdk) {
     const { config } = sdk.operatorConfig();
     const next = { ...defaultOperatorConfig(), ...config };
@@ -230,7 +220,6 @@ async function runSetup(rl, sdk) {
     }
     console.log("Configuration saved under .affix/config.json. Secrets (including API key) remain in .affix/secrets/.");
 }
-
 async function runProve(rl, sdk) {
     const mode = await promptLine(rl, "Mode (auto|offline|online)", "auto");
     const proofMode = (await promptLine(rl, "Proof mode (hmac|ultrahonk)", sdk.config.proofMode ?? "hmac")) === "ultrahonk"
@@ -265,7 +254,6 @@ async function runProve(rl, sdk) {
         envelope_ok: Boolean(result.envelope),
     }, null, 2));
 }
-
 async function runVerifyLocal(rl, sdk) {
     const proof = await promptLine(rl, "Proof hex");
     if (!proof) {
@@ -276,25 +264,21 @@ async function runVerifyLocal(rl, sdk) {
     const result = await sdk.verifyLocal(circuitId, proof);
     console.log(JSON.stringify(result, null, 2));
 }
-
 async function runStats(sdk) {
     const stats = await sdk.statsSnapshot();
     const spend = sdk.spendStatus();
     const licence = sdk.licenceState();
     console.log(JSON.stringify({ stats, spend, licence, api_key: sdk.apiKeyStatus() }, null, 2));
 }
-
 async function runConnections(sdk) {
     const result = await sdk.testConnections();
     console.log(JSON.stringify(result, null, 2));
 }
-
 async function runSpendAudit(sdk) {
     const integrity = sdk.verifySpendJournal();
     const status = sdk.spendStatus();
     console.log(JSON.stringify({ integrity, status }, null, 2));
 }
-
 async function runLicence(sdk) {
     const status = sdk.apiKeyStatus();
     if (!status.configured) {
@@ -304,7 +288,6 @@ async function runLicence(sdk) {
     const ok = await sdk.checkLicence(true);
     console.log(JSON.stringify({ ok, state: sdk.licenceState() }, null, 2));
 }
-
 async function runConfigDisplay(sdk) {
     const { config, paths } = sdk.operatorConfig();
     const pubkey = sdk.exportLocalPublicKey();
@@ -316,12 +299,10 @@ async function runConfigDisplay(sdk) {
         hsm: sdk.hsmStatus(),
     }, null, 2));
 }
-
 async function runProofSearch(sdk) {
     const proofs = await sdk.listStoredProofs();
     console.log(JSON.stringify(proofs.slice(0, 20), null, 2));
 }
-
 const MENU = `
 Affix SDK operator menu
   A  Set Affix API key
@@ -337,8 +318,7 @@ Affix SDK operator menu
   9  Show configuration
   0  Exit
 `;
-
-export async function runSetupWizard(options = {}) {
+export async function runSetupWizard(options) {
     const sdk = options.sdk ?? sdkFromEnv(options);
     const rl = createPrompter();
     try {
@@ -348,8 +328,7 @@ export async function runSetupWizard(options = {}) {
         rl.close();
     }
 }
-
-export async function runInteractive(options = {}) {
+export async function runInteractive(options) {
     const sdk = options.sdk ?? sdkFromEnv(options);
     const rl = createPrompter();
     try {

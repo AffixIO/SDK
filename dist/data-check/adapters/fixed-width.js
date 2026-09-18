@@ -1,3 +1,4 @@
+/* Credit: @paparichens */
 import { readFileSync, existsSync } from "node:fs";
 import { buildCheckResult } from "../map-check.js";
 /**
@@ -10,7 +11,7 @@ export class FixedWidthStore {
     lines;
     fields;
     idField;
-    constructor(lines, fields, idField = "id") {
+    constructor(lines, fields, idField) {
         this.lines = lines;
         this.fields = fields;
         this.idField = idField;

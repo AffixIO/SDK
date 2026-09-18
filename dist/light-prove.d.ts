@@ -1,9 +1,4 @@
 import type { WitnessPackage } from "./types.js";
-
-export declare const LIGHT_SCHEME: "affix-light-v1";
-export declare const LIGHT_ALGORITHM: "HMAC-SHA256";
-export declare const PRESENTMENT_PREFIX: string;
-
 export type LightProofBody = {
     scheme: string;
     alg: string;
@@ -18,7 +13,6 @@ export type LightProofBody = {
     witness_commitment: string;
     inputs: Record<string, string>;
 };
-
 export type LightProveResult = {
     proof: string;
     returnValue: string;
@@ -27,7 +21,6 @@ export type LightProveResult = {
     decision: "yes" | "no";
     proofMode: "hmac";
 };
-
 export type LightVerifyResult = {
     valid: boolean;
     authenticated: boolean;
@@ -36,10 +29,15 @@ export type LightVerifyResult = {
     reason?: string;
     proofMode?: "hmac";
 };
-
+export declare const LIGHT_SCHEME = "affix-light-v1";
+export declare const LIGHT_ALGORITHM = "HMAC-SHA256";
+export declare const PRESENTMENT_PREFIX = "AFX.LW1.";
 export declare function packLightProof(body: LightProofBody): string;
 export declare function unpackLightProof(proofHex: string): LightProofBody;
 export declare function isLightProof(proofHex: string): boolean;
+/**
+ * Affix Light HMAC prove (default). Uses witness inputs from yes/no circuits.
+ */
 export declare function lightProve(witness: WitnessPackage, secret: string | Uint8Array, options?: {
     decision?: "yes" | "no" | boolean;
     nonce?: string;

@@ -1,3 +1,4 @@
+/* Credit: @paparichens */
 import { buildCheckResult } from "../map-check.js";
 import { classifySqlError, SqlLookupError, outcomeFromLookup } from "../sql-errors.js";
 import { wrapSqlExecutor } from "../sql-executor.js";
@@ -28,8 +29,8 @@ export class SqlStore {
         };
         this.name = options.name ?? `sql_${dialect}`;
         this.style =
-            options.style ??
-                (LEGACY_DIALECTS.has(dialect) ? "legacy" : "modern");
+            (options.style ??
+                (LEGACY_DIALECTS.has(dialect) ? "legacy" : "modern"));
         const wrapOpts = {
             timeoutMs: options.timeoutMs,
             dialect,

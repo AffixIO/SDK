@@ -1,7 +1,5 @@
 import type { DataCheckSource, SqlDialect } from "./types.js";
-import { type FixedFieldDef } from "./adapters/fixed-width.js";
-/** Known adapter catalogue (historic + modern). */
-export declare const DATA_STORE_KINDS: readonly ["sql", "postgres", "mysql", "mariadb", "sqlite", "mssql", "sql_script", "json", "json_document", "mongo", "mongo_document", "ndjson", "key_value", "redis", "redis_export", "oracle", "db2", "odbc", "csv", "tsv", "pipe", "pipe_delimited", "semicolon", "delimited", "fixed_width", "dbase", "dbf", "xml", "ldif", "ini"];
+import type { FixedFieldDef } from "./adapters/fixed-width.js";
 export type DataStoreKind = (typeof DATA_STORE_KINDS)[number];
 export type OpenDataStoreOptions = {
     kind: DataStoreKind | string;
@@ -32,6 +30,8 @@ export type OpenDataStoreOptions = {
     readOnly?: boolean;
     role?: "primary" | "replica";
 };
+/** Known adapter catalogue (historic + modern). */
+export declare const DATA_STORE_KINDS: string[];
 /**
  * Open any supported database style from a single options object.
  * Live RDBMS: pass `executor` + kind sql|postgres|mysql|….

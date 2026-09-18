@@ -58,6 +58,7 @@ export type GenerateCodeFromProveInput = Omit<GenerateCodeInput, "prove" | "proo
     context?: Partial<import("../types.js").WitnessContext>;
     fields?: Record<string, string | number | boolean>;
     witness?: import("../types.js").WitnessPackage;
+    proofMode?: "hmac" | "ultrahonk";
 };
 export type SavedCodeFiles = {
     svg?: string;
@@ -131,3 +132,4 @@ export type ReadCodeResult = {
     attestation?: import("../types.js").Attestation;
     signed?: import("../types.js").VerifyResult;
 };
+export {};

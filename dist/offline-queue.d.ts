@@ -18,12 +18,14 @@ export type QueuedSyncJob = {
     meta?: Record<string, string>;
 };
 export declare class OfflineQueue {
-    private readonly docs;
-    private readonly maxJobs;
-    private readonly key;
+    docs: any;
+    maxJobs: any;
+    key: any;
     constructor(docs: AffixDocumentStore, maxJobs?: number, key?: string);
-    private read;
-    private write;
+    read(): Promise<{
+        jobs: any;
+    }>;
+    write(data: any): Promise<void>;
     enqueue(job: Omit<QueuedSyncJob, "created_at" | "attempts" | "status"> & {
         status?: QueuedSyncJob["status"];
     }): Promise<QueuedSyncJob>;

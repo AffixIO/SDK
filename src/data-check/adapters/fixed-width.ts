@@ -1,0 +1,57 @@
+/* Credit: @paparichens */
+import { readFileSync, existsSync } from "node:fs";
+import { buildCheckResult } from "../map-check.js";
+import type { DataCheckQuery, DataCheckResult, DataCheckSource } from "../types.js";
+
+export type FixedFieldDef = {
+    name: string;
+    start: number;
+    length: number;
+};
+/**
+ * Legacy fixed-width / mainframe-style export.
+ * Each line is one record; columns cut by absolute character positions.
+ */
+export class FixedWidthStore {
+    name = "fixed_width";
+    style = "legacy" as const;
+    lines;
+    fields;
+    idField;
+    constructor(lines: string[], fields: FixedFieldDef[], idField?: string) {
+        this.lines = lines;
+        this.fields = fields;
+        this.idField = idField;
+    }
+    static fromFile(path, fields, options) {
+        if (!existsSync(path))
+            throw new Error(`fixed_width_missing:${path}`);
+        let lines = readFileSync(path, "utf8").split(/\r?\n/).filter((l) => l.length > 0);
+        if (options?.skipHeader && lines.length)
+            lines = lines.slice(1);
+        return new FixedWidthStore(lines, fields, options?.idField ?? "id");
+    }
+    parseLine(line) {
+        const row = {};
+        for (const f of this.fields) {
+            row[f.name] = line.slice(f.start, f.start + f.length).trimEnd();
+        }
+        return row;
+    }
+    async lookup(query: DataCheckQuery): Promise<DataCheckResult | null> {
+        for (const line of this.lines) {
+            const row = this.parseLine(line);
+            if (row[this.idField] === query.id) {
+                return buildCheckResult({
+                    row,
+                    query,
+                    source: this.name,
+                    style: this.style,
+                    record_id: query.id,
+                    meta: { layout: "fixed_width" },
+                });
+            }
+        }
+        return null;
+    }
+}

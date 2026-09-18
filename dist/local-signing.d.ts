@@ -4,7 +4,6 @@ export type LocalSigningKeyPair = {
     secret_key_b64: string;
     key_id: string;
 };
-
 export type LocalAttestation = {
     schema: "affix.local-signature.v1";
     algorithm: "HMAC-SHA256+ML-DSA-65";
@@ -15,7 +14,6 @@ export type LocalAttestation = {
     mldsa_signature_b64: string;
     mldsa_public_key_b64: string;
 };
-
 export declare function canonicalLocalPayload(payload: unknown): string;
 export declare function createLocalSigningKeyPair(seedB64?: string): LocalSigningKeyPair;
 export declare function signLocalPayload(payload: unknown, options: {

@@ -1,3 +1,4 @@
+/* Credit: @paparichens */
 import { SqlLookupError, classifySqlError } from "./sql-errors.js";
 /**
  * Race a promise against a deadline. On timeout, rejects with SqlLookupError code=timeout.
@@ -43,7 +44,7 @@ export function assertSelectOnly(sql, readOnly) {
 /**
  * Wrap any SqlExecutor with timeout, readOnly SELECT guard, and error classification.
  */
-export function wrapSqlExecutor(inner, options = {}) {
+export function wrapSqlExecutor(inner, options) {
     return {
         async query(sql, params) {
             try {

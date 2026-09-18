@@ -1,9 +1,7 @@
 /* Credit: @paparichens */
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { ml_dsa65 } from "@noble/post-quantum/ml-dsa";
-
 const DOMAIN = "affix.sdk.local-signature.v1";
-
 function canonicalValue(value, seen) {
     if (value === null || typeof value === "string" || typeof value === "boolean")
         return value;
@@ -29,14 +27,12 @@ function canonicalValue(value, seen) {
     seen.delete(value);
     return out;
 }
-
 export function canonicalLocalPayload(payload) {
     return JSON.stringify(canonicalValue(payload, new Set()));
 }
-
-export function createLocalSigningKeyPair(seed) {
-    const seedBytes = seed
-        ? Buffer.from(seed, "base64")
+export function createLocalSigningKeyPair(seedB64) {
+    const seedBytes = seedB64
+        ? Buffer.from(seedB64, "base64")
         : randomBytes(32);
     if (seedBytes.length !== 32)
         throw new TypeError("mldsa65_seed_must_be_32_bytes");
@@ -48,13 +44,11 @@ export function createLocalSigningKeyPair(seed) {
         key_id: createHash("sha256").update(keys.publicKey).digest("hex").slice(0, 16),
     };
 }
-
 function localHmacKey(secret) {
     if (typeof secret !== "string" || secret.length < 16)
         throw new TypeError("local_hmac_secret_must_be_at_least_16_characters");
     return createHmac("sha256", secret).update(DOMAIN).digest();
 }
-
 export function signLocalPayload(payload, options) {
     const canonical = canonicalLocalPayload(payload);
     const message = Buffer.from(canonical, "utf8");
@@ -76,7 +70,6 @@ export function signLocalPayload(payload, options) {
         mldsa_public_key_b64: publicKey.toString("base64"),
     };
 }
-
 export function verifyLocalPayload(payload, attestation, hmacSecret) {
     try {
         if (attestation?.schema !== "affix.local-signature.v1")

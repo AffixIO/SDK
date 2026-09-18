@@ -1,4 +1,4 @@
-import type { DataCheckQuery, DataCheckResult, DataCheckSource } from "../types.js";
+import type { DataCheckQuery, DataCheckResult } from "../types.js";
 /**
  * Redis RESP bulk dump / simple KEY=VALUE line redis-export style.
  * Also accepts JSON objects (same as KeyValueStore) when file is JSON.
@@ -7,11 +7,11 @@ import type { DataCheckQuery, DataCheckResult, DataCheckSource } from "../types.
  * or plain lines:
  * P-1001 status=in_ed ward=A&E
  */
-export declare class RedisExportStore implements DataCheckSource {
-    readonly name = "redis_export";
-    readonly style: "modern";
-    private map;
+export declare class RedisExportStore {
+    name: string;
+    style: "modern";
+    map: any;
     constructor(map: Map<string, Record<string, unknown>>);
-    static fromFile(path: string): RedisExportStore;
+    static fromFile(path: any): RedisExportStore;
     lookup(query: DataCheckQuery): Promise<DataCheckResult | null>;
 }

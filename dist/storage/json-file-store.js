@@ -1,3 +1,4 @@
+/* Credit: @paparichens */
 import { existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 function atomicWrite(path, value, mode) {

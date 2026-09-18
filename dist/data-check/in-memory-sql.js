@@ -75,7 +75,7 @@ export class InMemorySqlDatabase {
         table.rows.push(row);
     }
     /** SqlExecutor-compatible query (lookup path). */
-    async query(sql, params = []) {
+    async query(sql, params) {
         const normalised = sql
             .replace(/["`\[\]]/g, "")
             .replace(/\s+/g, " ")

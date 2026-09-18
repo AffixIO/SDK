@@ -1,3 +1,4 @@
+/* Credit: @paparichens */
 import { readFileSync, existsSync } from "node:fs";
 import { buildCheckResult } from "../map-check.js";
 /**
@@ -9,7 +10,7 @@ export class CsvTableStore {
     style = "legacy";
     rows;
     idColumn;
-    constructor(rows, idColumn = "id") {
+    constructor(rows, idColumn) {
         this.rows = rows;
         this.idColumn = idColumn;
     }
@@ -49,7 +50,7 @@ export class CsvTableStore {
     }
 }
 /** Minimal CSV line parser with quotes. */
-export function parseCsvLine(line, delimiter = ",") {
+export function parseCsvLine(line, delimiter) {
     const out = [];
     let cur = "";
     let inQuotes = false;

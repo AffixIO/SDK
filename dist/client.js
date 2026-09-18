@@ -1,3 +1,4 @@
+/* Credit: @paparichens */
 import { requestJson } from "./http.js";
 export class AffixApiClient {
     config;

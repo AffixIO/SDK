@@ -1,4 +1,3 @@
-/** Well-known keys used by the SDK when a shared documentStore is configured. */
 export const STORAGE_KEYS = {
     proofs: "proofs",
     offlineQueue: "offline-queue",

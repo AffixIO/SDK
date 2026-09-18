@@ -2,7 +2,6 @@
 .env
 .env.*
 *.key
-*.pem
 secrets/
 test/
 node_modules/
