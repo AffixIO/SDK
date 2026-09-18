@@ -456,10 +456,13 @@ node examples/mcp-tool-gate/tool-call.mjs
 
 ## Related projects
 
-- [noir-lang/noir](https://github.com/noir-lang/noir): ZK domain-specific language
-- [@aztec/bb.js](https://www.npmjs.com/package/@aztec/bb.js): Barretenberg proving backend
-- [@noble/post-quantum](https://www.npmjs.com/package/@noble/post-quantum): ML-DSA / SLH-DSA primitives
-- [NIST PQC standards](https://csrc.nist.gov/projects/post-quantum-cryptography): FIPS 203, 204, 205
+| Project | Stars | Description |
+|---|---|---|
+| [noir-lang/noir](https://github.com/noir-lang/noir) | ![Stars](https://img.shields.io/github/stars/noir-lang/noir) | The ZK domain-specific language the bundled circuits are written in |
+| [AztecProtocol/barretenberg](https://github.com/AztecProtocol/barretenberg) | ![Stars](https://img.shields.io/github/stars/AztecProtocol/barretenberg) | Proving backend behind `ultrahonk` proofs |
+| [paulmillr/noble-post-quantum](https://github.com/paulmillr/noble-post-quantum) | ![Stars](https://img.shields.io/github/stars/paulmillr/noble-post-quantum) | ML-DSA-65 / SLH-DSA primitives used for attestation |
+
+The NIST post-quantum standards (FIPS 203, 204, 205) live at csrc.nist.gov/projects/post-quantum-cryptography.
 
 ## License
 
