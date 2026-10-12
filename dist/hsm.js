@@ -1,6 +1,7 @@
 /* Credit: @paparichens */
 import { existsSync } from "node:fs";
 import { requestJson } from "./http.js";
+
 /** Supported HSM families: hardware PKCS#11 and major cloud KMS/HSM services. */
 export const HSM_PROVIDERS = [
     "pkcs11",
@@ -19,10 +20,12 @@ export const HSM_PROVIDERS = [
     "generic_http",
     "custom",
 ];
+
 export function isHsmProvider(value) {
     return HSM_PROVIDERS.includes(value);
 }
-export function defaultHsmProfile(provider) {
+
+export function defaultHsmProfile(provider = "pkcs11") {
     return {
         enabled: true,
         provider,
@@ -49,6 +52,7 @@ export function defaultHsmProfile(provider) {
         meta: {},
     };
 }
+
 export function validateHsmProfile(profile) {
     if (!profile || typeof profile !== "object") {
         return { ok: false, error: "hsm_profile_required" };
@@ -57,7 +61,7 @@ export function validateHsmProfile(profile) {
         return {
             ok: false,
             error: `unsupported_hsm_provider:${profile.provider ?? "none"}`,
-            supported: [...HSM_PROVIDERS],
+            supported: HSM_PROVIDERS,
         };
     }
     const p = profile.provider;
@@ -79,9 +83,11 @@ export function validateHsmProfile(profile) {
     }
     return { ok: true };
 }
+
 function envPresent(name) {
     return Boolean(name && process.env[name]);
 }
+
 function credentialStatus(profile) {
     return {
         pin: envPresent(profile.pin_env),
@@ -91,6 +97,7 @@ function credentialStatus(profile) {
         secret_key: envPresent(profile.secret_key_env),
     };
 }
+
 async function probePkcs11(profile) {
     const library = profile.library_path;
     if (!library) {
@@ -148,6 +155,7 @@ async function probePkcs11(profile) {
         };
     }
 }
+
 async function probeHttpEndpoint(profile, path = "/") {
     const base = String(profile.endpoint).replace(/\/$/, "");
     const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
@@ -180,6 +188,7 @@ async function probeHttpEndpoint(profile, path = "/") {
         };
     }
 }
+
 async function probeAws(profile) {
     if (!profile.region) {
         return { ok: false, error: "region_required" };
@@ -204,6 +213,7 @@ async function probeAws(profile) {
         message: "AWS HSM/KMS profile stored. Use AWS SDK credentials in the environment for live signing.",
     };
 }
+
 async function probeAzure(profile) {
     const uri = String(profile.vault_uri).replace(/\/$/, "");
     try {
@@ -236,6 +246,7 @@ async function probeAzure(profile) {
         };
     }
 }
+
 async function probeGcp(profile) {
     return {
         ok: true,
@@ -251,6 +262,7 @@ async function probeGcp(profile) {
         message: "GCP KMS/HSM profile stored. Set GOOGLE_APPLICATION_CREDENTIALS for live signing.",
     };
 }
+
 /**
  * Probe an HSM connection profile without writing secrets into config.
  */
@@ -278,6 +290,7 @@ export async function testHsmConnection(profile) {
     }
     return { ok: false, error: `unhandled_provider:${provider}` };
 }
+
 export function summariseHsmProfile(profile) {
     if (!profile) {
         return { configured: false };

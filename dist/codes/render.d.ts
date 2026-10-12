@@ -1,5 +1,5 @@
 import type { CodeFormat } from "./types.js";
-export declare const DEFAULT_BARCODE_SYMBOLOGIES: string[];
+export declare const DEFAULT_BARCODE_SYMBOLOGIES: readonly ["code128", "pdf417", "datamatrix", "qrcode", "ean13", "ean8", "upca"];
 export declare function renderQrSvg(content: string, ecLevel?: "L" | "M" | "Q" | "H"): Promise<string>;
 export declare function renderQrPng(content: string, ecLevel?: "L" | "M" | "Q" | "H"): Promise<Buffer>;
 export declare function renderBarcodeSvg(symbology: string, content: string): Promise<string>;

@@ -1,7 +1,7 @@
 {
   "name": "affixio",
-  "version": "1.3.3",
-  "description": "AffixIO Node.js SDK. Know Your Agent (KYA) first, local ops dashboard, licence-only proving, HMAC/UltraHonk, ML-DSA-65, Merkle audit. Defaults to api.affix-io.com.",
+  "version": "2.0.3",
+  "description": "AffixIO: local proofs, ML-DSA-65 signatures, durable decision workflows, spending budgets, human review and portable evidence. Integration adapters for agent tools and payment authorization.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -15,17 +15,51 @@
       "types": "./dist/agent-trust/index.d.ts",
       "import": "./dist/agent-trust/index.js",
       "default": "./dist/agent-trust/index.js"
+    },
+    "./extensions": {
+      "types": "./dist/extensions/index.d.ts",
+      "import": "./dist/extensions/index.js",
+      "default": "./dist/extensions/index.js"
+    },
+    "./sth": {
+      "types": "./dist/extensions/index.d.ts",
+      "import": "./dist/extensions/index.js",
+      "default": "./dist/extensions/index.js"
+    },
+    "./offline": {
+      "types": "./dist/extensions/index.d.ts",
+      "import": "./dist/extensions/index.js",
+      "default": "./dist/extensions/index.js"
+    },
+    "./workflows": {
+      "types": "./dist/runtime/index.d.ts",
+      "import": "./dist/runtime/index.js",
+      "default": "./dist/runtime/index.js"
+    },
+    "./browser": {
+      "types": "./dist/runtime/browser.d.ts",
+      "import": "./dist/runtime/browser.js",
+      "default": "./dist/runtime/browser.js"
     }
   },
   "bin": {
     "affixio": "dist/cli.js",
-    "affix-sdk": "dist/cli.js"
+    "affix-sdk": "dist/cli.js",
+    "affix-sdk-ext": "dist/cli-ext.js",
+    "affixio-evidence": "dist/runtime/cli.js"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && node scripts/copy-static.mjs",
-    "test": "npm run build && node --test test/smoke.test.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:types": "tsc -p tests/tsconfig.json",
+    "test:python": "python3 -m unittest discover -s python/tests",
+    "test:package": "node scripts/package-check.mjs",
+    "prepack": "npm run build && npm test && npm run test:types",
     "setup": "node dist/cli.js setup",
-    "menu": "node dist/cli.js menu"
+    "menu": "node dist/cli.js menu",
+    "build:features": "node scripts/build.mjs",
+    "test:features": "node --test tests/*.test.mjs",
+    "doctor": "node dist/cli-ext.js doctor"
   },
   "keywords": [
     "affix",
@@ -86,7 +120,23 @@
     "kms",
     "double-spend",
     "hash-chain",
-    "tamper-evident"
+    "tamper-evident",
+    "signed-tree-head",
+    "consistency-proof",
+    "offline-verify",
+    "doctor",
+    "post-quantum-cryptography",
+    "quantum-safe",
+    "nist-pqc",
+    "agentic-ai",
+    "ai-agents",
+    "verifiable-credential",
+    "privacy-tech",
+    "zero-knowledge-proof",
+    "merkle-audit",
+    "sth",
+    "offline-first-sdk",
+    "fips204"
   ],
   "author": "AffixIO",
   "contributors": [
@@ -109,14 +159,20 @@
   },
   "files": [
     "dist",
-    "src",
-    "tsconfig.json",
     "circuits",
     "certs",
     "demo-data",
     "examples",
+    "src",
+    "scripts",
+    "tests",
+    "python/affixio_client.py",
+    "python/tests/test_client.py",
+    "docs",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "CHANGELOG.md",
+    "NOTICE"
   ],
   "dependencies": {
     "@aztec/bb.js": "5.0.0-nightly.20260601",

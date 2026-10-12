@@ -1,6 +1,8 @@
 /* Credit: @paparichens */
 import { docGet, docSet } from "./storage/index.js";
+
 export const STATS_KEY = "stats";
+
 export function emptyStats() {
     return {
         started_at: new Date().toISOString(),
@@ -21,10 +23,11 @@ export function emptyStats() {
         hsm: { configured: 0, probe_ok: 0, probe_fail: 0 },
     };
 }
+
 export class StatsStore {
     docs;
     key;
-    constructor(docs, key) {
+    constructor(docs, key = STATS_KEY) {
         this.docs = docs;
         this.key = key;
     }
@@ -43,7 +46,7 @@ export class StatsStore {
         stats.updated_at = new Date().toISOString();
         await docSet(this.docs, this.key, JSON.stringify(stats, null, 2));
     }
-    async bump(path, amount) {
+    async bump(path, amount = 1) {
         const stats = await this.read();
         const parts = path.split(".");
         let node = stats;

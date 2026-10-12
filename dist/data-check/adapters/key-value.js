@@ -1,4 +1,3 @@
-/* Credit: @paparichens */
 import { readFileSync, existsSync } from "node:fs";
 import { buildCheckResult, exactFieldString } from "../map-check.js";
 /**

@@ -1,4 +1,3 @@
-/* Credit: @paparichens */
 import { readFileSync, existsSync } from "node:fs";
 import { buildCheckResult } from "../map-check.js";
 /**
@@ -10,7 +9,7 @@ export class DbaseStore {
     style = "legacy";
     rows;
     idField;
-    constructor(rows, idField) {
+    constructor(rows, idField = "ID") {
         this.rows = rows;
         this.idField = idField;
     }

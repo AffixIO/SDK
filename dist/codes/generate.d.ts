@@ -1,5 +1,5 @@
-import { CodeUseStore } from "./spent-store.js";
 import type { AffixSDK } from "../index.js";
+import { CodeUseStore } from "./spent-store.js";
 import type { GenerateCodeFromProveInput, GenerateCodeInput, GeneratedCode, ReadCodeInput, ReadCodeResult } from "./types.js";
 export declare function generateZkCode(sdk: AffixSDK, input: GenerateCodeInput): Promise<GeneratedCode>;
 export declare function generateZkCodeFromProve(sdk: AffixSDK, input: GenerateCodeFromProveInput): Promise<GeneratedCode>;

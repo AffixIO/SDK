@@ -1,4 +1,3 @@
-/* Credit: @paparichens */
 import { existsSync, readFileSync } from "node:fs";
 import { JsonDocumentStore } from "./adapters/json-document.js";
 import { KeyValueStore } from "./adapters/key-value.js";

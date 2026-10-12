@@ -1,4 +1,3 @@
-/* Credit: @paparichens */
 import { claimAsCircuitField, claimDigestField, credentialPayloadFingerprint, deriveNullifierField, fieldInputHex, fieldToBigInt, fieldToHex, normalizeCredentialFields, } from "./field-crypto.js";
 const SUPPORTED = new Set(["yesno", "simple_yesno"]);
 export function isAffixCircuit(circuitId) {

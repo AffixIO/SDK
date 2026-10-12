@@ -1,4 +1,3 @@
-/* Credit: @paparichens */
 import { readFileSync, existsSync } from "node:fs";
 import { buildCheckResult } from "../map-check.js";
 import { parseCsvLine } from "./csv-table.js";
@@ -15,7 +14,7 @@ export class DelimitedTableStore {
         this.rows = rows;
         this.idColumn = options.idColumn ?? "id";
         this.name = options.name ?? `delimited_${options.delimiter === ";" ? "semicolon" : "custom"}`;
-        this.style = (options.style ?? "legacy");
+        this.style = options.style ?? "legacy";
     }
     static fromFile(path, options) {
         if (!existsSync(path))

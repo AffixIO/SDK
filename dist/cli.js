@@ -3,12 +3,14 @@
 import { AffixSDK, LicenceOnlyError } from "./index.js";
 import { runInteractive, runSetupWizard } from "./interactive.js";
 import { loadApiKey } from "./operator-config.js";
+
 function arg(name) {
     const idx = process.argv.indexOf(name);
     if (idx === -1)
         return undefined;
     return process.argv[idx + 1];
 }
+
 const LOCAL_COMMANDS = new Set([
     "help",
     "--help",
@@ -23,13 +25,21 @@ const LOCAL_COMMANDS = new Set([
     "set-key",
     "hsm",
     "dashboard",
+    "doctor",
+    "verify-offline",
+    "verify-spend",
+    "verify-sth",
+    "mcp",
 ]);
+
 function requiresApiKey(command) {
     return !LOCAL_COMMANDS.has(command);
 }
+
 function haveApiKey() {
     return Boolean(process.env.AFFIX_API_KEY ?? arg("--api-key") ?? loadApiKey(".affix"));
 }
+
 async function buildSdk() {
     const apiKey = process.env.AFFIX_API_KEY ?? arg("--api-key") ?? loadApiKey(".affix") ?? "local_operator";
     return new AffixSDK({
@@ -37,12 +47,24 @@ async function buildSdk() {
         apiBase: process.env.AFFIX_API_BASE ?? "https://api.affix-io.com",
         presentmentBase: process.env.AFFIX_PRESENTMENT_BASE ?? arg("--link-base"),
         autoFlush: false,
-        proofMode: (arg("--proof-mode") ?? process.env.AFFIX_PROOF_MODE),
+        proofMode: arg("--proof-mode") ?? process.env.AFFIX_PROOF_MODE,
         licenceOnly: process.env.AFFIX_LICENCE_ONLY === "0" ? false : undefined,
     });
 }
+
 async function main() {
     const command = process.argv[2] ?? "help";
+    // First-party feature pack (1.4+): doctor / offline verify — no API key for core
+    if (command === "doctor" || command === "verify-offline" || command === "verify-spend" || command === "verify-sth") {
+        const { runFeatureCli } = await import("./cli-ext.js");
+        await runFeatureCli();
+        return;
+    }
+    if (command === "mcp") {
+        const { runMcpCli } = await import("./mcp-connect.js");
+        await runMcpCli(process.argv.slice(3));
+        return;
+    }
     if (command === "help" || command === "--help") {
         console.log(`affix-sdk <command>
 
@@ -68,6 +90,11 @@ Commands:
   qr                  Generate ZK QR (--claim, --scans, --out, --link-base)
   barcode             Generate ZK barcode
   read <scanned>      Scan carrier or presentment URL (--consume, --sidecar)
+  doctor              Offline diagnostics (STH/consistency). --live = heartbeat + proof counts ONLY
+  verify-offline      Offline artifact verify (--inclusion, --sth, --pubkey, --attestation)
+  verify-spend        Verify portable spend journal (--artifact file.json)
+  verify-sth          Verify signed tree head (--sth, --pubkey)
+  mcp                 Sticky MCP connect (install|status|remove|print)
 
 Env: AFFIX_API_KEY, AFFIX_API_BASE, AFFIX_PROOF_MODE, AFFIX_LICENCE_ONLY,
      AFFIX_PRESENTMENT_BASE, AFFIX_LOCAL_HMAC_SECRET,
@@ -95,7 +122,7 @@ Dashboard flags: --host 127.0.0.1 --port 8787
         };
         process.on("SIGINT", stop);
         process.on("SIGTERM", stop);
-        await new Promise(() => { });
+        await new Promise(() => {});
         return;
     }
     if (requiresApiKey(command) && !haveApiKey()) {

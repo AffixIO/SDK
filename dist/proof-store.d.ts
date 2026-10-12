@@ -32,12 +32,12 @@ export type StoredProof = {
     meta?: Record<string, string>;
 };
 export declare class ProofStore {
-    docs: any;
-    max: any;
-    key: any;
-    constructor(docs: AffixDocumentStore, max?: number, key?: string);
-    read(): Promise<any[]>;
-    write(items: any): Promise<void>;
+    private readonly docs;
+    private readonly max;
+    private readonly key;
+    constructor(docs: AffixDocumentStore, max?: number, key?: string, options?: { ttlMs?: number; clock?: () => number });
+    private read;
+    private write;
     save(proof: StoredProof): Promise<void>;
     list(): Promise<StoredProof[]>;
 }

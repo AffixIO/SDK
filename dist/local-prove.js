@@ -1,4 +1,3 @@
-/* Credit: @paparichens */
 import { createHash, randomBytes } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -65,6 +64,7 @@ export function unpackProof(proofHex) {
         publicInputs: parsed.publicInputs ?? [],
     };
 }
+
 /** Affix API digest: sha256(`${circuitId}:${valid}:${proofHex}`). */
 export function proofDigest(proofHex, circuitId, valid) {
     return createHash("sha256")

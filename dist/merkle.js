@@ -1,4 +1,3 @@
-/* Credit: @paparichens */
 import { createHash } from "node:crypto";
 const LEAF_PREFIX = "affix:leaf:";
 const NODE_PREFIX = "affix:node:";

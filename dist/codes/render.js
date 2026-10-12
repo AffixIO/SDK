@@ -1,4 +1,3 @@
-/* Credit: @paparichens */
 import QRCode from "qrcode";
 import bwipjs from "bwip-js";
 export const DEFAULT_BARCODE_SYMBOLOGIES = [
@@ -10,7 +9,7 @@ export const DEFAULT_BARCODE_SYMBOLOGIES = [
     "ean8",
     "upca",
 ];
-export async function renderQrSvg(content, ecLevel) {
+export async function renderQrSvg(content, ecLevel = "L") {
     return QRCode.toString(content, {
         type: "svg",
         errorCorrectionLevel: ecLevel,
@@ -18,7 +17,7 @@ export async function renderQrSvg(content, ecLevel) {
         width: 256,
     });
 }
-export async function renderQrPng(content, ecLevel) {
+export async function renderQrPng(content, ecLevel = "L") {
     return QRCode.toBuffer(content, {
         type: "png",
         errorCorrectionLevel: ecLevel,

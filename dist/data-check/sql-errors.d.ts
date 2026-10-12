@@ -3,27 +3,12 @@
  * null from lookup = no row (record missing). These errors = infrastructure / engine faults.
  */
 export type SqlErrorCode = "timeout" | "pool" | "connection" | "query" | "readonly" | "unknown";
-/** Distinguish lookup outcomes for host apps. */
-export type SqlLookupOutcome = {
-    kind: "row";
-    result: import("./types.js").DataCheckResult;
-} | {
-    kind: "no_row";
-    id: string;
-} | {
-    kind: "db_error";
-    error: SqlLookupError;
-};
-/**
- * SQL lookup failure taxonomy.
- * null from lookup = no row (record missing). These errors = infrastructure / engine faults.
- */
 export declare class SqlLookupError extends Error {
-    code: any;
-    dialect: any;
-    role: any;
-    cause: any;
-    retriable: any;
+    readonly code: SqlErrorCode;
+    readonly dialect?: string;
+    readonly role?: "primary" | "replica";
+    readonly cause?: unknown;
+    readonly retriable: boolean;
     constructor(message: string, opts: {
         code: SqlErrorCode;
         dialect?: string;
@@ -41,6 +26,17 @@ export declare function classifySqlError(err: unknown, context?: {
     role?: "primary" | "replica";
     timeoutMs?: number;
 }): SqlLookupError;
+/** Distinguish lookup outcomes for host apps. */
+export type SqlLookupOutcome = {
+    kind: "row";
+    result: import("./types.js").DataCheckResult;
+} | {
+    kind: "no_row";
+    id: string;
+} | {
+    kind: "db_error";
+    error: SqlLookupError;
+};
 export declare function outcomeFromLookup(result: import("./types.js").DataCheckResult | null, id: string): Extract<SqlLookupOutcome, {
     kind: "row" | "no_row";
 }>;

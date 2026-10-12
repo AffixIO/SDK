@@ -1,5 +1,6 @@
 /* Credit: @paparichens */
-import { signLocalPayload, verifyLocalPayload } from "./local-signing.js";
+import { signLocalPayload, verifyLocalAttestation } from "./local-signing.js";
+
 export function wrapProofEnvelope(payload, options) {
     const attestation = signLocalPayload(payload, {
         hmacSecret: options.hmacSecret,
@@ -8,9 +9,29 @@ export function wrapProofEnvelope(payload, options) {
     });
     return { payload, attestation };
 }
-export function verifyProofEnvelope(envelope, hmacSecret) {
+
+function envelopeOptions(hmacSecretOrOptions, maybeOptions = {}) {
+    return typeof hmacSecretOrOptions === "object" && hmacSecretOrOptions !== null
+        ? hmacSecretOrOptions
+        : { ...maybeOptions, hmacSecret: hmacSecretOrOptions };
+}
+
+/** Detailed envelope verification against pinned keys (see verifyLocalAttestation). */
+export function verifyProofEnvelopeDetailed(envelope, hmacSecretOrOptions, maybeOptions) {
+    const options = envelopeOptions(hmacSecretOrOptions, maybeOptions);
     if (!envelope?.payload || !envelope?.attestation) {
-        return false;
+        // Still fail closed on missing trust before reporting shape problems.
+        verifyLocalAttestation(null, null, options);
+        return { valid: false, reason: "malformed_envelope", key_id: null, hmacVerified: false, signatureVerified: false };
     }
-    return verifyLocalPayload(envelope.payload, envelope.attestation, hmacSecret);
+    return verifyLocalAttestation(envelope.payload, envelope.attestation, options);
+}
+
+/**
+ * verifyProofEnvelope(envelope, hmacSecret, { trustedKeys }) or
+ * verifyProofEnvelope(envelope, { trustedKeys, hmacSecret? }).
+ * Throws AffixTrustError when no trusted key is configured (2.0.0-beta.2).
+ */
+export function verifyProofEnvelope(envelope, hmacSecretOrOptions, maybeOptions) {
+    return verifyProofEnvelopeDetailed(envelope, hmacSecretOrOptions, maybeOptions).valid;
 }

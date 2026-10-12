@@ -1,23 +1,30 @@
 /* Credit: @paparichens */
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+
 export const LIGHT_SCHEME = "affix-light-v1";
+// Affix Light = HMAC-SHA256 keyed message authentication code (MAC);
+// it is NOT a zero-knowledge proof. Use proofMode "ultrahonk" for ZK.
 export const LIGHT_ALGORITHM = "HMAC-SHA256";
 export const PRESENTMENT_PREFIX = "AFX.LW1.";
+
 function bytesToHex(bytes) {
     return Buffer.from(bytes).toString("hex");
 }
+
 function hexToBytes(value) {
     if (!/^(?:[0-9a-f]{2})+$/i.test(value)) {
         throw new TypeError("Expected an even-length hexadecimal string.");
     }
     return Buffer.from(value, "hex");
 }
+
 function canonicalInputs(inputs) {
     return Object.keys(inputs)
         .sort()
         .map((key) => `${key}=${inputs[key]}`)
         .join("|");
 }
+
 function publicInputsFor(circuitId, inputs, returnValue) {
     if (circuitId === "simple_yesno") {
         return [
@@ -48,6 +55,7 @@ function publicInputsFor(circuitId, inputs, returnValue) {
     }
     return [returnValue];
 }
+
 function statementDigest(input) {
     const statement = [
         LIGHT_SCHEME,
@@ -59,20 +67,24 @@ function statementDigest(input) {
     ].join("\n");
     return createHash("sha256").update(statement, "utf8").digest("hex");
 }
+
 function hmacKey(secret) {
     const material = typeof secret === "string"
         ? createHash("sha256").update(`${LIGHT_SCHEME}:${secret}`, "utf8").digest()
         : createHash("sha256").update(secret).digest();
     return material;
 }
+
 function hmacHex(secret, digestHex) {
     return createHmac("sha256", hmacKey(secret))
         .update(digestHex, "utf8")
         .digest("hex");
 }
+
 export function packLightProof(body) {
     return bytesToHex(Buffer.from(JSON.stringify(body), "utf8"));
 }
+
 export function unpackLightProof(proofHex) {
     const parsed = JSON.parse(hexToBytes(proofHex).toString("utf8"));
     if (parsed.scheme !== LIGHT_SCHEME || parsed.alg !== LIGHT_ALGORITHM) {
@@ -80,6 +92,7 @@ export function unpackLightProof(proofHex) {
     }
     return parsed;
 }
+
 export function isLightProof(proofHex) {
     try {
         unpackLightProof(proofHex);
@@ -89,10 +102,11 @@ export function isLightProof(proofHex) {
         return false;
     }
 }
+
 /**
  * Affix Light HMAC prove (default). Uses witness inputs from yes/no circuits.
  */
-export function lightProve(witness, secret, options) {
+export function lightProve(witness, secret, options = {}) {
     if (!secret || (typeof secret === "string" && secret.length < 16)) {
         throw new TypeError("hmac_secret_must_be_at_least_16_characters");
     }
@@ -137,6 +151,7 @@ export function lightProve(witness, secret, options) {
         proofMode: "hmac",
     };
 }
+
 export function lightVerify(circuitId, proofHex, secret) {
     let body;
     try {

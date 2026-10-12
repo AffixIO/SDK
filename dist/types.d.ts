@@ -1,4 +1,3 @@
-import type { AffixDocumentStore, AffixStorageConfig } from "./storage/types.js";
 export type Attestation = {
     signed_at: string;
     payload_digest: string;
@@ -49,7 +48,28 @@ export type ProveResult = {
     proof_mode?: "hmac" | "ultrahonk";
     /** Required local ML-DSA-65 + HMAC envelope over proof metadata. */
     envelope: {
-        payload: Record<string, unknown>;
+        payload: {
+            proof_id?: string;
+            circuit_id?: string;
+            proof?: string;
+            proof_digest?: string;
+            valid?: boolean;
+            decision?: string;
+            proof_mode?: string;
+            request_id?: string;
+            origin?: string;
+            /** sha256 hex of canonical policy JSON (or empty-policy sentinel). */
+            policy_hash?: string;
+            /** SDK / circuit / schema / licence revision binding. */
+            version_binding?: {
+                sdk_version: string;
+                circuit_id: string | null;
+                attestation_schema: string;
+                envelope_schema: string;
+                policy_revision: number | null;
+            };
+            [key: string]: unknown;
+        };
         attestation: import("./local-signing.js").LocalAttestation;
     };
     /** Direct ML-DSA-65 signature summary. Proof creation fails if verification fails. */
@@ -73,12 +93,34 @@ export type VerifyResult = {
     valid: boolean;
     verified: boolean;
     decision: "yes" | "no";
-    circuit_id: string;
+    /** 2.0.3: the circuit the server bound the proof to (not the caller's argument). null when unbound (vk_only). */
+    circuit_id: string | null;
+    /** 2.0.3: the circuit_id the caller asked to verify. */
+    requested_circuit_id: string;
+    /** 2.0.3: server binding: "server_prove_record" | "unique_vk" | "vk_only"; null from older servers. */
+    circuit_binding: string | null;
+    vk_hash: string | null;
     proof_digest: string;
     merkle_root?: string;
     merkle_leaf_hash?: string;
     attestation?: Attestation;
+    /** 2.0.3: fields the API signs, kept as received. */
+    engine?: string;
+    proof_ref?: string;
+    return_value?: string | null;
+    policy_version?: string;
+    /** 2.0.3: the API attestation checked against pinned AffixIO keys. null when none was requested. */
+    attestation_valid: boolean | null;
+    attestation_reason: string;
+    /** Published key id (as in GET /v1/keys) of the key that signed the attestation. */
+    attestation_key_id: string | null;
+    /** Exactly the object the attestation covers. */
+    signed_payload: Record<string, unknown>;
+    /** The response as received. */
+    raw: Record<string, unknown>;
 };
+import type { AffixDocumentStore, AffixStorageConfig } from "./storage/types.js";
+
 export type HttpDataProfile = {
     name?: string;
     baseUrl: string;
@@ -91,7 +133,24 @@ export type HttpDataProfile = {
     recordsPath?: string;
     sampleId?: string;
 };
-export type HsmProvider = "pkcs11" | "softhsm" | "aws_cloudhsm" | "aws_kms" | "azure_key_vault" | "azure_managed_hsm" | "gcp_kms" | "google_cloud_hsm" | "thales" | "utimaco" | "ncipher" | "yubihsm" | "fortanix" | "generic_http" | "custom";
+
+export type HsmProvider =
+    | "pkcs11"
+    | "softhsm"
+    | "aws_cloudhsm"
+    | "aws_kms"
+    | "azure_key_vault"
+    | "azure_managed_hsm"
+    | "gcp_kms"
+    | "google_cloud_hsm"
+    | "thales"
+    | "utimaco"
+    | "ncipher"
+    | "yubihsm"
+    | "fortanix"
+    | "generic_http"
+    | "custom";
+
 export type HsmProfile = {
     enabled?: boolean;
     provider: HsmProvider;
@@ -117,6 +176,7 @@ export type HsmProfile = {
     prefer_for_signing?: boolean;
     meta?: Record<string, string>;
 };
+
 export type AffixSdkConfig = {
     apiBase: string;
     apiKey: string;
@@ -132,7 +192,24 @@ export type AffixSdkConfig = {
     spendDir?: string;
     statsPath?: string;
     hmacSecret?: string;
-    signingSeedB64?: string;
+    /**
+     * Verifier role (2.0.0-beta.2). "server" (default) / "trusted-party" may verify HMAC proofs
+     * (with a warning). "device" / "edge" / "offline-verifier" refuse HMAC proofs and check
+     * envelopes by pinned ML-DSA-65 key only.
+     */
+    role?: "server" | "trusted-party" | "device" | "edge" | "offline-verifier";
+    /** Extra pinned ML-DSA-65 keys for envelope verification (e.g. a gateway's local key). */
+    trustedSigningKeys?: import("./local-signing.js").TrustedKeysInput;
+    /** Pin this host's own signing key. Default true for server/trusted-party, false for device/edge/offline-verifier. Always honoured. */
+    trustOwnSigningKey?: boolean;
+    /** Create a local ML-DSA key if none exists. Default true for server roles, false for verifier roles. */
+    generateSigningKey?: boolean;
+    /** Reject legacy v1 envelopes. Default true for every role since 2.0.2; pass false to verify stored v1 envelopes. */
+    rejectLegacyV1?: boolean;
+    /** TESTS ONLY. Trust the key embedded in an envelope. Emits a warning. */
+    insecureTrustEmbeddedKey?: boolean;
+    /** Silence the one-time HMAC trusted-party warning on server roles. */
+    silenceHmacWarning?: boolean;
     signingKeys?: {
         algorithm: string;
         public_key_b64: string;
@@ -142,6 +219,19 @@ export type AffixSdkConfig = {
     signingKeysPath?: string;
     hmacSecretPath?: string;
     operatorBaseDir?: string;
+    /** 2.0.3: write generated secrets to operatorBaseDir/secrets (dir 0700, files 0600). Requires an explicit operatorBaseDir. Supplied secrets are never written. Default false (in-memory, with a warning). */
+    persistSecrets?: boolean;
+    /** 2.0.3: with no operatorBaseDir, keep data in ./.affix (0700/0600) instead of memory. Default false. */
+    persistData?: boolean;
+    /** 2.0.3: pinned AffixIO keys for sdk.verify() attestation checks (key set document or list). Default: fetch `${apiBase}/v1/keys`. */
+    affixioKeys?: unknown;
+    /** 2.0.3: pin the fetched key set by key bytes. */
+    affixioExpectedKeys?: { key_id: string; public_key_hash: string }[];
+    affixioExpectedKeySetHash?: string;
+    /** Max records in the local proof store (newest kept). Default 1000 since 2.0.3. */
+    proofStoreMaxRecords?: number;
+    /** Drop stored proofs older than this. Default 7 days since 2.0.3; 0 disables. */
+    proofStoreTtlMs?: number;
     connections?: {
         internal?: HttpDataProfile | null;
         external?: HttpDataProfile | null;
@@ -266,4 +356,3 @@ export type LicenceState = {
     quota?: ProofQuotaState | null;
     policy_revision?: number | null;
 };
-export {};

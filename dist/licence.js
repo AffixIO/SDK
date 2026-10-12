@@ -1,7 +1,6 @@
-/* Credit: @paparichens */
 import { randomInt } from "node:crypto";
 import { requestJson } from "./http.js";
-import { docGet, docSet } from "./storage/index.js";
+import { docGet, docSet, STORAGE_KEYS } from "./storage/index.js";
 export class LicenceError extends Error {
     code = "affix_sdk_licence_invalid";
     constructor(message) {
@@ -40,7 +39,7 @@ export class LicenceLease {
     hydrated = false;
     docs;
     key;
-    constructor(config, docs, key) {
+    constructor(config, docs, key = STORAGE_KEYS.licence) {
         this.config = config;
         this.docs = docs;
         this.key = key;
@@ -131,7 +130,7 @@ export class LicenceLease {
     /**
      * Instant policy pulse for Hub-driven plan changes.
      */
-    async pulse(force) {
+    async pulse(force = false) {
         await this.hydrate();
         if (!isLicenceBillingKey(this.config.apiKey) || this.config.enforceProofQuota === false) {
             return this.state.ok || this.state.status === "unchecked";
@@ -203,7 +202,7 @@ export class LicenceLease {
             return;
         await this.pulse(false);
     }
-    async consumeQuota(count) {
+    async consumeQuota(count = 1) {
         if (!isLicenceBillingKey(this.config.apiKey) || this.config.enforceProofQuota === false)
             return;
         await this.hydrate();
@@ -261,7 +260,7 @@ export class LicenceLease {
     /**
      * Lightweight auth ping. Does not call prove. Safe for periodic checks.
      */
-    async check(force) {
+    async check(force = false) {
         await this.hydrate();
         if (!force && !this.needsCheck() && this.state.ok) {
             return true;

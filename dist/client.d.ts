@@ -1,19 +1,10 @@
 import type { AffixSdkConfig } from "./types.js";
 export declare class AffixApiClient {
-    config: any;
+    private readonly config;
     constructor(config: AffixSdkConfig);
-    headers(): {
-        Accept: string;
-        "Content-Type": string;
-        Authorization: string;
-        "X-API-Key": any;
-        "User-Agent": string;
-    };
+    private headers;
     get(path: string): Promise<Record<string, unknown>>;
     post(path: string, body: Record<string, unknown>): Promise<Record<string, unknown>>;
-    authCheck(): Promise<Record<string, unknown>>;
-    authPulse(): Promise<Record<string, unknown>>;
-    consumeProofQuota(count?: number): Promise<Record<string, unknown>>;
     health(): Promise<Record<string, unknown>>;
     listCircuits(): Promise<Record<string, unknown>>;
     verify(circuitId: string, body: Record<string, unknown>): Promise<Record<string, unknown>>;

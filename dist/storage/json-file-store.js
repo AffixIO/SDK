@@ -1,10 +1,11 @@
-/* Credit: @paparichens */
-import { existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
-function atomicWrite(path, value, mode) {
-    mkdirSync(dirname(path), { recursive: true });
+function atomicWrite(path, value, mode = 0o600) {
+    // 2.0.3 (H3): SDK data files are 0600 in a 0700 directory.
+    mkdirSync(dirname(path), { recursive: true, mode: 0o700 });
     const tmp = `${path}.${process.pid}.tmp`;
-    writeFileSync(tmp, value, mode !== undefined ? { mode } : undefined);
+    writeFileSync(tmp, value, { mode });
+    chmodSync(tmp, mode);
     renameSync(tmp, path);
 }
 /**

@@ -1,4 +1,3 @@
-/* Credit: @paparichens */
 import { buildPresentmentLink, extractCarrierFromScan } from "../constants.js";
 import { isLightProof } from "../light-prove.js";
 import { localVerify, unpackProof } from "../local-prove.js";

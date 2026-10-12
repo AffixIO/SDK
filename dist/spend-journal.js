@@ -1,13 +1,15 @@
 /* Credit: @paparichens */
 import { appendFileSync, chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { ml_dsa65 } from "@noble/post-quantum/ml-dsa";
 import { withFileLock } from "./file-lock.js";
 import { canonicalLocalPayload } from "./local-signing.js";
+
 const HEAD_NAME = "spend-head.json";
 const JOURNAL_NAME = "spend-journal.jsonl";
 const LOCK_NAME = "spend-journal.lock";
+
 function eventCanonical(event) {
     return canonicalLocalPayload({
         seq: event.seq,
@@ -19,17 +21,21 @@ function eventCanonical(event) {
         max_uses: event.max_uses,
     });
 }
+
 function hashEvent(event) {
     return createHash("sha256").update(eventCanonical(event), "utf8").digest("hex");
 }
+
 function loadKeys(keysPath) {
-    const raw = JSON.parse(readFileSync(keysPath, "utf8"));
+    // 2.0.3: accepts the key object itself (supplied keys are never written to disk) or a path.
+    const raw = keysPath && typeof keysPath === "object" ? keysPath : JSON.parse(readFileSync(keysPath, "utf8"));
     return {
         publicKeyB64: raw.public_key_b64,
         secretKeyB64: raw.secret_key_b64,
         keyId: raw.key_id,
     };
 }
+
 export class SpendJournal {
     baseDir;
     keysPath;
@@ -47,6 +53,10 @@ export class SpendJournal {
         return join(this.baseDir, LOCK_NAME);
     }
     ensureDir() {
+        // 2.0.3 (H3): an SDK without operatorBaseDir keeps no spend journal; single-use code
+        // gates need durable storage, so this fails loudly instead of writing to the CWD.
+        if (!this.baseDir)
+            throw new Error("spend_journal_requires_operatorBaseDir: pass operatorBaseDir (or spendDir) to use single-use code gates");
         mkdirSync(this.baseDir, { recursive: true, mode: 0o700 });
     }
     readHead() {

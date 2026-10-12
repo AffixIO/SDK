@@ -1,4 +1,3 @@
-/* Credit: @paparichens */
 import { requestJson } from "./http.js";
 export class AffixApiClient {
     config;
@@ -11,7 +10,7 @@ export class AffixApiClient {
             "Content-Type": "application/json",
             Authorization: `Bearer ${this.config.apiKey}`,
             "X-API-Key": this.config.apiKey,
-            "User-Agent": "AffixIO-SDK/1.0",
+            "User-Agent": "AffixIO-SDK/2.0.0",
         };
     }
     async get(path) {

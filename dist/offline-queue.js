@@ -1,10 +1,9 @@
-/* Credit: @paparichens */
-import { docGet, docSet } from "./storage/index.js";
+import { docGet, docSet, STORAGE_KEYS } from "./storage/index.js";
 export class OfflineQueue {
     docs;
     maxJobs;
     key;
-    constructor(docs, maxJobs, key) {
+    constructor(docs, maxJobs = 50_000, key = STORAGE_KEYS.offlineQueue) {
         this.docs = docs;
         this.maxJobs = maxJobs;
         this.key = key;

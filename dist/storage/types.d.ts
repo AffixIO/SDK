@@ -9,6 +9,13 @@ export interface AffixDocumentStore {
     set(key: string, value: string): MaybePromise<void>;
     delete?(key: string): MaybePromise<void>;
 }
+/** Well-known keys used by the SDK when a shared documentStore is configured. */
+export declare const STORAGE_KEYS: {
+    readonly proofs: "proofs";
+    readonly offlineQueue: "offline-queue";
+    readonly codeUses: "code-uses";
+    readonly licence: "licence";
+};
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];
 /**
  * Optional per-domain stores. Any omitted domain falls back to `documentStore`
@@ -25,15 +32,6 @@ export type AffixStorageConfig = {
     codeUses?: AffixDocumentStore;
     /** Override licence lease state only. */
     licence?: AffixDocumentStore;
-    /** Override stats blob only. */
-    stats?: AffixDocumentStore;
-};
-export declare const STORAGE_KEYS: {
-    readonly proofs: "proofs";
-    readonly offlineQueue: "offline-queue";
-    readonly codeUses: "code-uses";
-    readonly licence: "licence";
-    readonly stats: "stats";
 };
 export declare function docGet(store: AffixDocumentStore, key: string): Promise<string | null>;
 export declare function docSet(store: AffixDocumentStore, key: string, value: string): Promise<void>;

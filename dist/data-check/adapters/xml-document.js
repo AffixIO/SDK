@@ -1,4 +1,3 @@
-/* Credit: @paparichens */
 import { readFileSync, existsSync } from "node:fs";
 import { buildCheckResult } from "../map-check.js";
 /**
@@ -14,7 +13,7 @@ export class XmlDocumentStore {
     constructor(records, options) {
         this.records = records;
         this.idField = options?.idField ?? "id";
-        this.style = (options?.style ?? "legacy");
+        this.style = options?.style ?? "legacy";
     }
     static fromFile(path, options) {
         if (!existsSync(path))

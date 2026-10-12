@@ -1,4 +1,3 @@
-/* Credit: @paparichens */
 import { readFileSync, existsSync } from "node:fs";
 import { buildCheckResult } from "../map-check.js";
 /**
@@ -12,7 +11,7 @@ export class LdifStore {
     style = "legacy";
     records;
     idAttr;
-    constructor(records, idAttr) {
+    constructor(records, idAttr = "uid") {
         this.records = records;
         this.idAttr = idAttr;
     }
