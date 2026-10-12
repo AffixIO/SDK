@@ -1,9 +1,11 @@
 # AffixIO SDK
 
 [![npm](https://img.shields.io/npm/v/affixio.svg)](https://www.npmjs.com/package/affixio)
+[![CI](https://github.com/AffixIO/SDK/actions/workflows/ci.yml/badge.svg)](https://github.com/AffixIO/SDK/actions/workflows/ci.yml)
 [![license](https://img.shields.io/npm/l/affixio.svg)](LICENSE)
 [![node](https://img.shields.io/node/v/affixio.svg)](package.json)
 [![GitHub stars](https://img.shields.io/github/stars/AffixIO/SDK?style=social)](https://github.com/AffixIO/SDK)
+[![Open in GitHub Codespaces](https://img.shields.io/badge/Open%20in-GitHub%20Codespaces-blue?logo=github)](https://codespaces.new/AffixIO/SDK)
 
 Agents call tools that spend money, touch data or change state, and the host usually has no signed record of why a call was allowed.
 
