@@ -1,0 +1,29 @@
+name: Integration request
+description: Gate tool calls in a framework or host that has no example yet
+labels: [enhancement, integration]
+body:
+  - type: input
+    id: framework
+    attributes:
+      label: Framework or host
+      placeholder: Vercel AI SDK, Mastra, AutoGen, a custom MCP host
+    validations:
+      required: true
+  - type: input
+    id: language
+    attributes:
+      label: Language
+      placeholder: TypeScript, Python (via HTTP), Go
+  - type: textarea
+    id: hook
+    attributes:
+      label: Where would the gate run?
+      description: The hook or middleware where an allow/deny check could run before the tool executes. Links to framework docs help.
+    validations:
+      required: true
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Contribution
+      options:
+        - label: I can open a PR with an example

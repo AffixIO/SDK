@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+title: "affixio: Node SDK for signed allow/deny decisions on AI agent tool calls"
+authors:
+  - name: AffixIO
+type: software
+version: 2.0.3
+license: Apache-2.0
+repository-code: https://github.com/AffixIO/SDK
+url: https://www.affix-io.com/agent-trust/
+keywords: [ai-agents, mcp, tool-calling, authorization, ml-dsa, post-quantum, zero-knowledge]

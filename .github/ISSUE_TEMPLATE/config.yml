@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and show and tell
+    url: https://github.com/AffixIO/SDK/discussions
+    about: Ask how to gate a tool call, or share what you built
+  - name: Report a security vulnerability
+    url: https://github.com/AffixIO/SDK/blob/main/SECURITY.md
+    about: Please do not open public issues for vulnerabilities

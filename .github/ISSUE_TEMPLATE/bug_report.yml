@@ -1,0 +1,42 @@
+name: Bug report
+description: Something in the affixio SDK or CLI does not work as documented
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: affixio version
+      description: Output of `npm ls affixio`
+      placeholder: 2.0.3
+    validations:
+      required: true
+  - type: input
+    id: runtime
+    attributes:
+      label: Runtime
+      placeholder: Node 20.11, Linux x64
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Proof mode
+      options: [offline / local, HMAC, UltraHonk, not sure]
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: Smallest code that shows the problem. Remove API keys and secrets.
+      render: js
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+      description: Include the full error message and stack trace.
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: Security issues go to SECURITY.md, not public issues.
