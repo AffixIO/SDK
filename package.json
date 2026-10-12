@@ -136,7 +136,20 @@
     "merkle-audit",
     "sth",
     "offline-first-sdk",
-    "fips204"
+    "fips204",
+    "tool-calling",
+    "tool-gating",
+    "authorization",
+    "policy-engine",
+    "guardrails",
+    "openai-agents",
+    "langchain",
+    "mcp",
+    "model-context-protocol",
+    "express",
+    "fastify",
+    "nextjs",
+    "offline"
   ],
   "author": "AffixIO",
   "contributors": [

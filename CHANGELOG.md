@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Docs: README starts with an offline hello world (real output), "Gate any tool call", HMAC vs UltraHonk table, CLI table and free proofs links. Security notes moved lower.
+- Examples: `examples/hello`, `examples/gate/{openai-agents,langchain,mcp-server,crewai}`.
+- Templates: Express, Fastify and Next.js routes that gate a tool call.
+- package.json: more discovery keywords. No code changes.
+
 ## 2.0.3 (unreleased) - circuit binding on /verify (vk_only)
 
 - **High: `kind: "verify"` rejects unbound cores.** `verifyAffixioAttestation(..., { kind: "verify" })` (and so
