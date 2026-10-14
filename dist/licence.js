@@ -40,6 +40,11 @@ export class LicenceLease {
     docs;
     key;
     constructor(config, docs, key = STORAGE_KEYS.licence) {
+        if (typeof config.apiKey !== "string" || !config.apiKey.trim()) {
+            const error = new LicenceError("An API key is required. Pass apiKey when creating AffixSDK.");
+            error.code = "affixio_api_key_required";
+            throw error;
+        }
         this.config = config;
         this.docs = docs;
         this.key = key;
