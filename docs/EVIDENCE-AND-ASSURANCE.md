@@ -82,6 +82,8 @@ The envelope and verification key formats should be treated as versioned interfa
 
 An interoperability test should use synthetic data and publish the expected digest, public key, signature, and verification result. It must not contain production keys, customer records, API credentials, or private prompts.
 
+The repository includes a deterministic synthetic fixture at [`examples/interoperability/`](../examples/interoperability/). It prints only public test material and verifies the generated vector before output. The fixture is for signature interoperability, not a certification or a complete policy-security assessment.
+
 ## Current limitations
 
 This guide deliberately does not claim that AffixIO provides government certification, FIPS 140-3 validation, a complete external key-recovery authority, or truth about the data supplied by a host. Those are separate assurance questions and require independent review.
