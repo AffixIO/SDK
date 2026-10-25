@@ -146,6 +146,7 @@ If this saves you time, a star on [GitHub](https://github.com/AffixIO/SDK) helps
 | 2.0.0-beta.1 guide | [Capabilities, migration and limitations](docs/2.0.0-beta.1.md) |
 | Existing core reference | [1.4.1 reference, retained for compatibility](docs/1.4.1-reference.md) |
 | Evidence and assurance | [Threat boundaries, review checklist, and interoperability notes](docs/EVIDENCE-AND-ASSURANCE.md) |
+| Proof-before-action demo | [Offline gate, ML-DSA envelope verification, replay check, and fail-closed execution](examples/PROOF-BEFORE-ACTION.md) |
 | Licence | Apache-2.0 |
 | Runtime | Node.js 20 or later |
 
