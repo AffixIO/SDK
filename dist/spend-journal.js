@@ -2,7 +2,7 @@
 import { appendFileSync, chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { dirname, join } from "node:path";
-import { ml_dsa65 } from "@noble/post-quantum/ml-dsa";
+import { ml_dsa65 } from "@noble/post-quantum/ml-dsa.js";
 import { withFileLock } from "./file-lock.js";
 import { canonicalLocalPayload } from "./local-signing.js";
 

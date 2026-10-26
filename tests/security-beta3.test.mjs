@@ -6,7 +6,7 @@ import { mkdtemp, readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { ml_dsa65 } from "@noble/post-quantum/ml-dsa";
+import { ml_dsa65 } from "@noble/post-quantum/ml-dsa.js";
 import { AffixSDK, createLocalSigningKeyPair, signLocalPayload, verifyLocalAttestation, wrapProofEnvelope, lightProve,
   verifyAffixioAttestation, fetchAffixioKeys, clearAffixioKeyCache, computeKeySetHash, publicKeyHash } from "../dist/index.js";
 import { verifyPublicEnvelope } from "../dist/runtime/index.js";

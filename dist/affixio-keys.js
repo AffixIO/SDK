@@ -1,7 +1,7 @@
 /* Credit: @paparichens */
 // Official AffixIO verification keys (public only) and AffixIO server attestation verify.
 import { createHash } from "node:crypto";
-import { ml_dsa65 } from "@noble/post-quantum/ml-dsa";
+import { ml_dsa65 } from "@noble/post-quantum/ml-dsa.js";
 import { AffixTrustError, normalizeTrustedKeys, warnLegacyUnsignedTime } from "./local-signing.js";
 
 export const AFFIXIO_KEYS_URL = "https://api.affix-io.com/v1/keys";

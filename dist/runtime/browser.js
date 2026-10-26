@@ -1,4 +1,4 @@
-import { ml_dsa65 } from "@noble/post-quantum/ml-dsa";
+import { ml_dsa65 } from "@noble/post-quantum/ml-dsa.js";
 import { canonical } from "./canonical.js";
 
 const bytes = text => new TextEncoder().encode(text);

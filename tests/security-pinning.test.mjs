@@ -7,7 +7,7 @@ import { mkdtemp, writeFile, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
-import { ml_dsa65 } from "@noble/post-quantum/ml-dsa";
+import { ml_dsa65 } from "@noble/post-quantum/ml-dsa.js";
 import {
   AffixSDK, AffixTrustError, AffixHmacRoleError, createLocalSigningKeyPair, signLocalPayload, verifyLocalPayload,
   verifyLocalAttestation, verifyProofEnvelope, wrapProofEnvelope, lightProve, fetchAffixioKeys, clearAffixioKeyCache,

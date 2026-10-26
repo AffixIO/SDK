@@ -5,7 +5,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createServer } from "node:http";
-import { ml_dsa65 } from "@noble/post-quantum/ml-dsa";
+import { ml_dsa65 } from "@noble/post-quantum/ml-dsa.js";
 import { createHash, randomBytes } from "node:crypto";
 import { AffixSDK, verifyAffixioAttestation, createLocalSigningKeyPair, clearAffixioKeyCache } from "../dist/index.js";
 

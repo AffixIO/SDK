@@ -3,7 +3,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash, randomBytes } from "node:crypto";
-import { ml_dsa65 } from "@noble/post-quantum/ml-dsa";
+import { ml_dsa65 } from "@noble/post-quantum/ml-dsa.js";
 import { verifyAffixioAttestation, signedVerifyPayload, VERIFIED_PROOF_DOMAIN, CLIENT_PAYLOAD_DOMAIN } from "../dist/index.js";
 
 const pair = ml_dsa65.keygen(randomBytes(32));

@@ -5,7 +5,7 @@ import { createHash } from "node:crypto";
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { ml_dsa65 } from "@noble/post-quantum/ml-dsa";
+import { ml_dsa65 } from "@noble/post-quantum/ml-dsa.js";
 import { AffixSDK, createLocalSigningKeyPair, signLocalPayload, verifyLocalAttestation, wrapProofEnvelope, lightProve, canonicalLocalPayload,
   localSignatureMessage, checkEnvelopeBinding, verifyAffixioAttestation, fetchAffixioKeys, publicKeyHash, LOCAL_SIGNATURE_V2_PREFIX } from "../dist/index.js";
 import { verifyPublicEnvelope } from "../dist/runtime/index.js";

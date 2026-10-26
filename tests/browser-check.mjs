@@ -6,7 +6,7 @@ import { createLocalSigningKeyPair } from "../dist/local-signing.js";
 
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || "playwright");
 const root = resolve(".");
-const imports = { "@noble/post-quantum/ml-dsa": "/node_modules/@noble/post-quantum/esm/ml-dsa.js" };
+const imports = { "@noble/post-quantum/ml-dsa.js": "/node_modules/@noble/post-quantum/esm/ml-dsa.js" };
 const hashes = JSON.parse(await readFile("node_modules/@noble/hashes/package.json", "utf8"));
 for (const [name, value] of Object.entries(hashes.exports)) {
   if (name.startsWith("./") && typeof value.import === "string") imports[`@noble/hashes/${name.slice(2)}`] = `/node_modules/@noble/hashes/${value.import.slice(2)}`;

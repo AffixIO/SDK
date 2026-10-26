@@ -7,7 +7,7 @@ import { mkdtempSync, existsSync, statSync, writeFileSync, readFileSync, mkdirSy
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
-import { ml_dsa65 } from "@noble/post-quantum/ml-dsa";
+import { ml_dsa65 } from "@noble/post-quantum/ml-dsa.js";
 import { AffixSDK, createLocalSigningKeyPair, signLocalPayload, verifyLocalAttestation, verifyAffixioAttestation, fetchAffixioKeys, clearAffixioKeyCache, publicKeyHash, affixioKeysUrl, signedVerifyPayload } from "../dist/index.js";
 import { MemoryStore, FileStore, BudgetLedger, WorkflowSession, DecisionPipeline } from "../dist/runtime/index.js";
 import { ProofStore } from "../dist/proof-store.js";

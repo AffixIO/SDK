@@ -1,6 +1,6 @@
 /* Credit: @paparichens */
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
-import { ml_dsa65 } from "@noble/post-quantum/ml-dsa";
+import { ml_dsa65 } from "@noble/post-quantum/ml-dsa.js";
 
 const DOMAIN = "affix.sdk.local-signature.v1";
 
