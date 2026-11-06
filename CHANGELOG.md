@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Publish `templates/` (Express, Fastify and Next.js) in the npm package. The pack list is checked for those three starters and rejects `node_modules`, `.env` and key files under `templates/`.
 - Report `affixio_api_key_required` with setup guidance when the SDK has no API key, instead of crashing while building the licence key hint.
 
 - Docs: README starts with an offline hello world (real output), "Gate any tool call", HMAC vs UltraHonk table, CLI table and free proofs links. Security notes moved lower.

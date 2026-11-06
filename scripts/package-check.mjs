@@ -21,8 +21,9 @@ try {
   const bytes = await readFile(archive);
   await run("tar", ["-xzf", archive, "-C", directory]);
   const names = await readdir(join(directory, "package"), { recursive: true });
-  for (const name of ["dist/runtime/index.js", "dist/runtime/index.d.ts", "dist/runtime/browser.js", "dist/mcp-connect.js", "python/affixio_client.py", "docs/2.0.0.md"]) assert.ok(names.includes(name), `Missing ${name}`);
+  for (const name of ["dist/runtime/index.js", "dist/runtime/index.d.ts", "dist/runtime/browser.js", "dist/mcp-connect.js", "python/affixio_client.py", "docs/2.0.0.md", "templates/express/server.mjs", "templates/fastify/server.mjs", "templates/nextjs/app/api/tools/search/route.ts"]) assert.ok(names.includes(name), `Missing ${name}`);
   assert.ok(!names.some(name => /(^|\/)(node_modules|\.affix|__pycache__|runtime-data)(\/|$)|\.pyc$/.test(name)));
+  assert.ok(!names.some(name => name.startsWith("templates/") && /(^|\/)(\.env($|\.)|secrets(\/|$)|[^/]+\.key$)/.test(name)), "templates pack includes secrets");
   const pkg = JSON.parse(await readFile(join(directory, "package/package.json"), "utf8"));
   assert.equal(pkg.version, "2.0.3");
   for (const entry of Object.values(pkg.exports)) for (const path of Object.values(entry)) await readFile(join(directory, "package", path));
