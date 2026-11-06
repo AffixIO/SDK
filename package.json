@@ -176,6 +176,7 @@
     "certs",
     "demo-data",
     "examples",
+    "templates",
     "src",
     "scripts",
     "tests",
